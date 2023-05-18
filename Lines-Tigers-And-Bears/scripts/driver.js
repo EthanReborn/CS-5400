@@ -4,11 +4,11 @@ MySample.main = (function(graphics) {
     
     let x1 = graphics.sizeX / 2;
     let y1 = graphics.sizeY / 2;
-    let x2 = graphics.sizeX * .5;
-    let y2 = graphics.sizeY * 1;
+    let x2 = graphics.sizeX * .4;
+    let y2 = graphics.sizeY * 0;
 
     let x3 = graphics.sizeX * .5;
-    let y3 = graphics.sizeY;
+    let y3 = graphics.sizeY / 2;
     
     let reverse = true;
 
@@ -18,21 +18,34 @@ MySample.main = (function(graphics) {
     //
     //------------------------------------------------------------------
     function update() {
-        if(graphics.octant1 == 0){
-            reverse? x2--: x2++;   
-        }else if(graphics.octant1 == 1){
+
+        const deltaY = Math.abs(y2 - y1);
+        const deltaX = Math.abs(x2 - x1);
+        var m = deltaY / deltaX;
+
+        //q0
+        if(m > 1 && x2 > x1 && y1 > y2){
+            reverse? x2--: x2++;  
+        }//q1
+        else if(m >= 0 && m <= 1 && x2 > x1 && y2 < y1){
             reverse? y2--: y2++;
-        }else if(graphics.octant1 == 2){
+        }//q2
+        else if(m >= 0 && m <= 1 && x1 < x2 && y2 >= y1){
             reverse? y2--: y2++; 
-        }else if(graphics.octant1 == 3){
+        }//q3
+        else if(m > 1 && x2 >= x1 && y1 < y2){
             reverse? x2++: x2--;
-        }else if(graphics.octant1 == 4){
+        }//q4
+        else if(m > 1 && x2 < x1 && y2 > y1){
             reverse? x2++: x2--;
-        }else if(graphics.octant1 == 5){
+        }//q5
+        else if(m >= 0 && m <= 1 && x2 < x1 && y2 > y1){
             reverse? y2++: y2--;
-        }else if(graphics.octant1 == 6){
+        }//q6
+        else if (m >= 0 && m <= 1 && x2 < x1){
             reverse? y2++: y2--; 
-        }else if(graphics.octant1 == 7){
+        }  //q7
+        else if (m > 1 && x2 <= x1 && y2 < y1){
             reverse? x2--: x2++;
         }
 

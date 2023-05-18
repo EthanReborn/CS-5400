@@ -62,30 +62,33 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function drawLine(x1, y1, x2, y2, color){
-        var deltaY = Math.abs(y2 - y1);
-        var deltaX = Math.abs(x2 - x1);
+        const deltaY = Math.abs(y2 - y1);
+        const deltaX = Math.abs(x2 - x1);
         var m = deltaY / deltaX;
 
         //q0
         if(m > 1 && x2 > x1 && y1 > y2){
             //drawLineQ0(x1, y1, x2, y2, color);
             //swappoints false, swap delta true, inc x = -1, inc y = 1
-            drawBresenHam(x1, y1, x2, y2, -1, 1, true, false, color);
+            drawBresenHam(x1, y1, x2, y2, -1, 1, deltaX, deltaY, true, false, color);
         }
         //q1
         else if(m >= 0 && m <= 1 && x2 > x1 && y2 < y1){
             //drawLineQ1(x1, y1, x2, y2, color);
             //inc x = 1, inc y = -1, swap delta false, swap points false
-            console.log('q1');
-            drawBresenHam(x1, y1, x2, y2, 1, -1, false, false, color);
+            drawBresenHam(x1, y1, x2, y2, 1, -1, deltaX, deltaY, false, false, color);
         }
         //q2
         else if(m >= 0 && m <= 1 && x1 < x2 && y2 >= y1){
-            drawLineQ2(x1, y1, x2, y2, color);
+            //drawLineQ2(x1, y1, x2, y2, color);
+            //xinc = -1, yinc = -1 swap delta false, swap points true
+            drawBresenHam(x1, y1, x2, y2, -1 , -1, deltaX, deltaY, false, true, color);
         }
         //q3
         else if(m > 1 && x2 >= x1 && y1 < y2){
-            drawLineQ3(x1, y1, x2, y2, color);
+            //drawLineQ3(x1, y1, x2, y2, color);
+            //xinc = 1 yinc = 1, swap delta true, swap points false
+            
         }
         //q4
         else if(m > 1 && x2 < x1 && y2 > y1){
@@ -105,9 +108,53 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
     }
 
-    function drawBresenHam(x1, y1, x2, y2, incX, incY, swapDelta, swapPoints, color){
-        var deltaY = Math.abs(y2 - y1);
-        var deltaX = Math.abs(x2 - x1);
+    function drawBresenHam(x1, y1, x2, y2, incX, incY, deltaX, deltaY, swapDelta, swapPoints, color){
+        var limit = 0;
+        var pkinc0;
+        var pkinc1;
+
+        if(swapPoints){
+            var curY = y2;
+            var curX = x2;
+        }else{
+            var curY = y1;
+            var curX = x1;
+        }
+
+        if(swapDelta){
+            limit = deltaY;
+            var pk = (2 * deltaX) - deltaY;
+            pkinc1 = 2 * deltaX - 2 * deltaY;
+            pkinc0 = 2 * deltaX;
+        }else{
+            limit = deltaX;
+            var pk = (2 * deltaY) - deltaX;
+            pkinc1 = 2 * deltaY - 2 * deltaX;
+            pkinc0 = 2 * deltaY;
+        }
+
+        for(let i = 0; i < limit; i++){
+            //d1 - d2 = positive go up, else go down
+            if(swapDelta){
+                api.drawPixel(curY, curX, color);
+            }else{
+                api.drawPixel(curX, curY, color);
+            }
+            if(pk >= 0){
+                curX += incX;
+                curY += incY;
+                //pk+1
+                //pk = pk + 2 * deltaY - 2 * deltaX;
+                pk += pkinc1;
+            }else{
+                curX += incX;
+                //pk+1
+                pk += pkinc0;
+            }
+        }
+    }
+
+    function  drawBresenHam2(x1, y1, x2, y2, incX, incY, swapDelta, swapPoints, color) {  //swappoints false, swap delta true, inc x = -1, inc y = 1
 
         var limit = 0;
         var pkinc0;
@@ -125,6 +172,8 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
             pkinc0 = 2 * deltaY;
         }
 
+        console.log(limit);
+
         if(swapPoints){
             var curY = y2;
             var curX = x2;
@@ -133,74 +182,12 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
             var curX = x1;
         }
 
-        var deltaY = Math.abs(y2 - y1);
-        var deltaX = Math.abs(x2 - x1);
-        var pk = (2 * deltaY) - deltaX;
-        var curX = x1;
-        var curY = y1;
-        
-        if(color === 'red'){
-            api.octant1 = 1;
-        }else{
-            api.octant2 = 1;
-        }
-        
-        for(let i = 0; i < limit; i++){
-            //d1 - d2 = positive go up, else go down
-            api.drawPixel(curX, curY, color);
-            if(pk >= 0){
-                curX += incX;
-                curY += incY;
-                //pk+1
-                //pk = pk + 2 * deltaY - 2 * deltaX;
-                pk += pkinc1;
-            }else{
-                curX += incX;
-                //pk+1
-                pk += pkinc0;
-            }
-        }
-    }
-
-    function drawLineQ0(x1, y1, x2, y2, color) {  //swappoints false, swap delta true, inc x = -1, inc y = 1
-        // var deltaY = Math.abs(y2 - y1);
-        // var deltaX = Math.abs(x2 - x1);
-
-        // var limit = 0;
-        // var pkinc0;
-        // var pkinc1;
-
-        // if(swapDelta){
-        //     limit = deltaY;
-        //     var pk = (2 * deltaX) - deltaY;
-        //     pkinc1 = 2 * deltaX - 2 * deltaY;
-        //     pkinc0 = 2 * deltaX;
-        // }else{
-        //     limit = deltaX;
-        //     var pk = (2 * deltaY) - deltaX;
-        //     pkinc1 = 2 * deltaY - 2 * deltaX;
-        //     pkinc0 = 2 * deltaY;
-        // }
-
-        // if(swapPoints){
-        //     var curY = y2;
-        //     var curX = x2;
-        // }else{
-        //     var curY = y1;
-        //     var curX = x1;
-        // }
-
         // var deltaY = Math.abs(y2 - y1);
         // var deltaX = Math.abs(x2 - x1);
         // var pk = (2 * deltaY) - deltaX;
         // var curX = x1;
         // var curY = y1;
-        
-        // if(color === 'red'){
-        //     api.octant1 = 1;
-        // }else{
-        //     api.octant2 = 1;
-        // }
+    
         
         // for(let i = 0; i < limit; i++){
         //     //d1 - d2 = positive go up, else go down
@@ -218,11 +205,8 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         //     }
         // }
 
-        var deltaY = Math.abs(y1 - y2);
-        var deltaX = Math.abs(x1 - x2);
-        var pk = (2 * deltaX) - deltaY;
-        var curY = y1;
-        var curX = x1;
+        // var curY = y1;
+        // var curX = x1;
 
         if(color === 'red'){
             api.octant1 = 0;
@@ -230,7 +214,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
             api.octant2 = 0;
         }
         
-        for(let i =0; i<deltaY; i++){
+        for(let i =0; i<limit; i++){
             //d1 - d2 = positive go up, else go down
             api.drawPixel(curY, curX, color);
             if(pk >= 0){
@@ -275,7 +259,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
     }
 
-    function drawLineQ2(x1, y1, x2, y2, color) {
+    function drawLineQ2(x1, y1, x2, y2, color) { //xinc = -1, yinc = -1 swap delta false, swap points true
         var deltaY = Math.abs(y1 - y2);
         var deltaX = Math.abs(x1 - x2);
         var pk = (2 * deltaY) - deltaX;
@@ -304,7 +288,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
     }
 
-    function drawLineQ3(x1, y1, x2, y2, color) {
+    function drawLineQ3(x1, y1, x2, y2, color) { //xinc = 1 yinc = 1, swap delta true, swap points false
         var deltaY = Math.abs(y1 - y2);
         var deltaX = Math.abs(x1 - x2);
         var pk = (2 * deltaX) - deltaY;
@@ -393,6 +377,8 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     }
 
     function drawLineQ6(x1, y1, x2, y2, color) {
+
+        console.log(y2);
         var deltaY = Math.abs(y2 - y1);
         var deltaX = Math.abs(x2 - x1);
         var pk = (2 * deltaY) - deltaX;
@@ -435,6 +421,8 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }else{
             api.octant2 = 7;
         }
+
+        console.log(y2);
         
         for(let i =0; i<deltaY; i++){
             //d1 - d2 = positive go up, else go down
@@ -456,8 +444,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         clear: clear,
         drawPixel: drawPixel,
         drawLine: drawLine,
-        octant1: 10,
-        octant2: -1,
         get sizeX() { return pixelsX; },
         get sizeY() { return pixelsY; }
     };
