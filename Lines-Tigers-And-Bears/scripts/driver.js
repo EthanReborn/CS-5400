@@ -5,7 +5,7 @@ MySample.main = (function(graphics) {
     let x1 = graphics.sizeX / 2;
     let y1 = graphics.sizeY / 2;
     let x2 = graphics.sizeX * .5;
-    let y2 = graphics.sizeY;
+    let y2 = graphics.sizeY * 1;
 
     let x3 = graphics.sizeX * .5;
     let y3 = graphics.sizeY;
@@ -54,9 +54,9 @@ MySample.main = (function(graphics) {
             reverse? x3++: x3--;
         }
 
-        if(x2 == graphics.sizeX / 2){
-            reverse = !reverse;
-        }
+        // if(x2 == graphics.sizeX / 2){
+        //     reverse = !reverse;
+        // }
     }
 
     //------------------------------------------------------------------
@@ -67,7 +67,7 @@ MySample.main = (function(graphics) {
     function render() {
         graphics.clear();
         graphics.drawLine(x1, y1, x2, y2, 'red');
-        graphics.drawLine(x1, y1, x3, y3, 'blue');
+        //graphics.drawLine(x1, y1, x3, y3, 'blue');
         // console.log("octant1: " + graphics.octant1);
         // console.log("octant2: " + graphics.octant2);
     }

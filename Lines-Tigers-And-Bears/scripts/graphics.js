@@ -68,11 +68,16 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
 
         //q0
         if(m > 1 && x2 > x1 && y1 > y2){
-            drawLineQ0(x1, y1, x2, y2, color);
+            //drawLineQ0(x1, y1, x2, y2, color);
+            //swappoints false, swap delta true, inc x = -1, inc y = 1
+            drawBresenHam(x1, y1, x2, y2, -1, 1, true, false, color);
         }
         //q1
         else if(m >= 0 && m <= 1 && x2 > x1 && y2 < y1){
-            drawLineQ1(x1, y1, x2, y2, color);
+            //drawLineQ1(x1, y1, x2, y2, color);
+            //inc x = 1, inc y = -1, swap delta false, swap points false
+            console.log('q1');
+            drawBresenHam(x1, y1, x2, y2, 1, -1, false, false, color);
         }
         //q2
         else if(m >= 0 && m <= 1 && x1 < x2 && y2 >= y1){
@@ -100,10 +105,122 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
     }
 
-    function drawLineQ0(x1, y1, x2, y2, color) {
+    function drawBresenHam(x1, y1, x2, y2, incX, incY, swapDelta, swapPoints, color){
+        var deltaY = Math.abs(y2 - y1);
+        var deltaX = Math.abs(x2 - x1);
+
+        var limit = 0;
+        var pkinc0;
+        var pkinc1;
+
+        if(swapDelta){
+            limit = deltaY;
+            var pk = (2 * deltaX) - deltaY;
+            pkinc1 = 2 * deltaX - 2 * deltaY;
+            pkinc0 = 2 * deltaX;
+        }else{
+            limit = deltaX;
+            var pk = (2 * deltaY) - deltaX;
+            pkinc1 = 2 * deltaY - 2 * deltaX;
+            pkinc0 = 2 * deltaY;
+        }
+
+        if(swapPoints){
+            var curY = y2;
+            var curX = x2;
+        }else{
+            var curY = y1;
+            var curX = x1;
+        }
+
+        var deltaY = Math.abs(y2 - y1);
+        var deltaX = Math.abs(x2 - x1);
+        var pk = (2 * deltaY) - deltaX;
+        var curX = x1;
+        var curY = y1;
+        
+        if(color === 'red'){
+            api.octant1 = 1;
+        }else{
+            api.octant2 = 1;
+        }
+        
+        for(let i = 0; i < limit; i++){
+            //d1 - d2 = positive go up, else go down
+            api.drawPixel(curX, curY, color);
+            if(pk >= 0){
+                curX += incX;
+                curY += incY;
+                //pk+1
+                //pk = pk + 2 * deltaY - 2 * deltaX;
+                pk += pkinc1;
+            }else{
+                curX += incX;
+                //pk+1
+                pk += pkinc0;
+            }
+        }
+    }
+
+    function drawLineQ0(x1, y1, x2, y2, color) {  //swappoints false, swap delta true, inc x = -1, inc y = 1
+        // var deltaY = Math.abs(y2 - y1);
+        // var deltaX = Math.abs(x2 - x1);
+
+        // var limit = 0;
+        // var pkinc0;
+        // var pkinc1;
+
+        // if(swapDelta){
+        //     limit = deltaY;
+        //     var pk = (2 * deltaX) - deltaY;
+        //     pkinc1 = 2 * deltaX - 2 * deltaY;
+        //     pkinc0 = 2 * deltaX;
+        // }else{
+        //     limit = deltaX;
+        //     var pk = (2 * deltaY) - deltaX;
+        //     pkinc1 = 2 * deltaY - 2 * deltaX;
+        //     pkinc0 = 2 * deltaY;
+        // }
+
+        // if(swapPoints){
+        //     var curY = y2;
+        //     var curX = x2;
+        // }else{
+        //     var curY = y1;
+        //     var curX = x1;
+        // }
+
+        // var deltaY = Math.abs(y2 - y1);
+        // var deltaX = Math.abs(x2 - x1);
+        // var pk = (2 * deltaY) - deltaX;
+        // var curX = x1;
+        // var curY = y1;
+        
+        // if(color === 'red'){
+        //     api.octant1 = 1;
+        // }else{
+        //     api.octant2 = 1;
+        // }
+        
+        // for(let i = 0; i < limit; i++){
+        //     //d1 - d2 = positive go up, else go down
+        //     api.drawPixel(curX, curY, color);
+        //     if(pk >= 0){
+        //         curX += incX;
+        //         curY += incY;
+        //         //pk+1
+        //         //pk = pk + 2 * deltaY - 2 * deltaX;
+        //         pk += pkinc1;
+        //     }else{
+        //         curX += incX;
+        //         //pk+1
+        //         pk += pkinc0;
+        //     }
+        // }
+
         var deltaY = Math.abs(y1 - y2);
         var deltaX = Math.abs(x1 - x2);
-        var p0 = (2 * deltaX) - deltaY;
+        var pk = (2 * deltaX) - deltaY;
         var curY = y1;
         var curX = x1;
 
@@ -112,22 +229,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }else{
             api.octant2 = 0;
         }
-
-        //initial
-        api.drawPixel(x1, y1, color);
-
-        //draw p0
-        if(p0 >= 0){
-            curX--;
-            curY++;
-            api.drawPixel(curY, curX, color);
-        }else{
-            curX--;
-            api.drawPixel(curY, curX, color);
-        }
-
-        //first pk
-        var pk = p0;
         
         for(let i =0; i<deltaY; i++){
             //d1 - d2 = positive go up, else go down
@@ -145,35 +246,18 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
     }
     
-    function drawLineQ1(x1, y1, x2, y2, color) {
+    function drawLineQ1(x1, y1, x2, y2, color) { //inc x = 1, inc y = -1, swap delta false, swap points false
         var deltaY = Math.abs(y2 - y1);
         var deltaX = Math.abs(x2 - x1);
-        var p0 = (2 * deltaY) - deltaX;
+        var pk = (2 * deltaY) - deltaX;
+        var curX = x1;
+        var curY = y1;
         
         if(color === 'red'){
             api.octant1 = 1;
         }else{
             api.octant2 = 1;
         }
-
-        var curX = x1;
-        var curY = y1;
-
-        //initial
-        api.drawPixel(x1, y1, color); 
-
-        //draw p0
-        if(p0 >= 0){
-            curX++;
-            curY--;
-            api.drawPixel(curX, curY, color);
-        }else{
-            curX++;
-            api.drawPixel(curX, curY, color);
-        }
-
-        //first pk
-        var pk = p0;
         
         for(let i = 0; i < deltaX; i++){
             //d1 - d2 = positive go up, else go down
@@ -194,8 +278,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     function drawLineQ2(x1, y1, x2, y2, color) {
         var deltaY = Math.abs(y1 - y2);
         var deltaX = Math.abs(x1 - x2);
-        var p0 = (2 * deltaY) - deltaX;
-
+        var pk = (2 * deltaY) - deltaX;
         var curX = x2;
         var curY = y2;
 
@@ -204,24 +287,8 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }else{
             api.octant2 = 2;
         }
-
-        //initial
-        api.drawPixel(x2, y2, color); 
-
-        //draw p0
-        if(p0 >= 0){
-            curX--;
-            curY--;
-            api.drawPixel(curX, curY, color);
-        }else{
-            curX--;
-            api.drawPixel(curX, curY, color);
-        }
-
-        //first pk
-        var pk = p0;
         
-        for(let i =0; i<deltaX; i++){
+        for(let i =0; i<deltaX + 1; i++){
             //d1 - d2 = positive go up, else go down
             api.drawPixel(curX, curY, color);
             if(pk >= 0){
@@ -240,7 +307,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     function drawLineQ3(x1, y1, x2, y2, color) {
         var deltaY = Math.abs(y1 - y2);
         var deltaX = Math.abs(x1 - x2);
-        var p0 = (2 * deltaX) - deltaY;
+        var pk = (2 * deltaX) - deltaY;
         var curY = y1;
         var curX = x1;
 
@@ -249,22 +316,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }else{
             api.octant2 = 3;
         }
-
-        //initial
-        api.drawPixel(x1, y1, color);
-
-        //draw p0
-        if(p0 >= 0){
-            curX++;
-            curY++;
-            api.drawPixel(curY, curX, color);
-        }else{
-            curX++;
-            api.drawPixel(curY, curX, color);
-        }
-
-        //first pk
-        var pk = p0;
         
         for(let i =0; i<deltaY; i++){
             //d1 - d2 = positive go up, else go down
@@ -285,7 +336,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     function drawLineQ4(x1, y1, x2, y2, color) {
         var deltaY = Math.abs(y1 - y2);
         var deltaX = Math.abs(x1 - x2);
-        var p0 = (2 * deltaX) - deltaY;
+        var pk = (2 * deltaX) - deltaY;
         var curY = y1;
         var curX = x1;
 
@@ -294,22 +345,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }else{
             api.octant2 = 4;
         }
-
-        //initial
-        api.drawPixel(x1, y1, color);
-
-        //draw p0
-        if(p0 >= 0){
-            curX++;
-            curY--;
-            api.drawPixel(curY, curX, color);
-        }else{
-            curX++;
-            api.drawPixel(curY, curX, color);
-        }
-
-        //first pk
-        var pk = p0;
         
         for(let i =0; i<deltaY; i++){
             //d1 - d2 = positive go up, else go down
@@ -330,7 +365,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     function drawLineQ5(x1, y1, x2, y2, color) {
         var deltaY = Math.abs(y1 - y2);
         var deltaX = Math.abs(x1 - x2);
-        var p0 = (2 * deltaY) - deltaX;
+        var pk = (2 * deltaY) - deltaX;
 
         var curX = x2;
         var curY = y2;
@@ -340,24 +375,8 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }else{
             api.octant2 = 5;
         }
-
-        //initial
-        api.drawPixel(x2, y2, color); 
-
-        //draw p0
-        if(p0 >= 0){
-            curX++;
-            curY--;
-            api.drawPixel(curX, curY, color);
-        }else{
-            curX++;
-            api.drawPixel(curX, curY, color);
-        }
-
-        //first pk
-        var pk = p0;
         
-        for(let i =0; i<deltaX; i++){
+        for(let i =0; i<deltaX + 1; i++){
             //d1 - d2 = positive go up, else go down
             api.drawPixel(curX, curY, color);
             if(pk >= 0){
@@ -376,7 +395,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     function drawLineQ6(x1, y1, x2, y2, color) {
         var deltaY = Math.abs(y2 - y1);
         var deltaX = Math.abs(x2 - x1);
-        var p0 = (2 * deltaY) - deltaX;
+        var pk = (2 * deltaY) - deltaX;
         var m = deltaY / deltaX;
     
         var curX = x1;
@@ -387,22 +406,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }else{
             api.octant2 = 6;
         }
-
-        //initial
-        api.drawPixel(x1, y1, color); 
-
-        //draw p0
-        if(p0 >= 0){
-            curX--;
-            curY--;
-            api.drawPixel(curX, curY, color);
-        }else{
-            curX++;
-            api.drawPixel(curX, curY, color);
-        }
-
-        //first pk
-        var pk = p0;
         
         for(let i =0; i<deltaX; i++){
             //d1 - d2 = positive go up, else go down
@@ -423,7 +426,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     function drawLineQ7(x1, y1, x2, y2, color) {
         var deltaY = Math.abs(y1 - y2);
         var deltaX = Math.abs(x1 - x2);
-        var p0 = (2 * deltaX) - deltaY;
+        var pk = (2 * deltaX) - deltaY;
         var curY = y1;
         var curX = x1;
 
@@ -432,22 +435,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }else{
             api.octant2 = 7;
         }
-
-        //initial
-        api.drawPixel(x1, y1, "red");
-
-        //draw p0
-        if(p0 >= 0){
-            curX--;
-            curY--;
-            api.drawPixel(curY, curX, color);
-        }else{
-            curX--;
-            api.drawPixel(curY, curX, color);
-        }
-
-        //first pk
-        var pk = p0;
         
         for(let i =0; i<deltaY; i++){
             //d1 - d2 = positive go up, else go down
