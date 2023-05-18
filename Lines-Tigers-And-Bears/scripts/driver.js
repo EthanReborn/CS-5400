@@ -49,23 +49,23 @@ MySample.main = (function(graphics) {
             reverse? x2--: x2++;
         }
 
-        if(graphics.octant2 == 0){
-            reverse? x3++: x3--;   
-        }else if(graphics.octant2 == 1){
-            reverse? y3++: y3--;
-        }else if(graphics.octant2 == 2){
-            reverse? y3++: y3--; 
-        }else if(graphics.octant2 == 3){
-            reverse? x3--: x3++;
-        }else if(graphics.octant2 == 4){
-            reverse? x3--: x3++;
-        }else if(graphics.octant2 == 5){
-            reverse? y3--: y3++;
-        }else if(graphics.octant2 == 6){
-            reverse? y3--: y3++; 
-        }else if(graphics.octant2 == 7){
-            reverse? x3++: x3--;
-        }
+        // if(graphics.octant2 == 0){
+        //     reverse? x3++: x3--;   
+        // }else if(graphics.octant2 == 1){
+        //     reverse? y3++: y3--;
+        // }else if(graphics.octant2 == 2){
+        //     reverse? y3++: y3--; 
+        // }else if(graphics.octant2 == 3){
+        //     reverse? x3--: x3++;
+        // }else if(graphics.octant2 == 4){
+        //     reverse? x3--: x3++;
+        // }else if(graphics.octant2 == 5){
+        //     reverse? y3--: y3++;
+        // }else if(graphics.octant2 == 6){
+        //     reverse? y3--: y3++; 
+        // }else if(graphics.octant2 == 7){
+        //     reverse? x3++: x3--;
+        // }
 
         // if(x2 == graphics.sizeX / 2){
         //     reverse = !reverse;
