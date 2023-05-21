@@ -19,7 +19,9 @@ MySample.main = (function(graphics) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
-
+        const controls = [graphics.sizeX * .1, graphics.sizeY / 2, graphics.sizeX * .2, graphics.sizeY * .9, graphics.sizeX * .8, graphics.sizeY / 2, graphics.sizeX * .9, graphics.sizeY * .1]; 
+        //[x1, y1, s1, t1, x2, y2, s2, t2]
+        graphics.drawCurve(graphics.Curve.Hermite, controls, 50, true, true, true, 'red');
     }
 
     //------------------------------------------------------------------

@@ -105,7 +105,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
             drawBresenHam(x1, y1, x2, y2, 1, -1, deltaX, deltaY, false, true, color);
         }
         //q6
-        else if (m >= 0 && m <= 1 && x2 < x1){
+        else if (m >= 0 && m <= 1 && x2 < x1 && y2 >= y1){
             drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, false, false, color);
         }
         //q7
@@ -171,6 +171,37 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function drawCurveHermite(controls, segments, showPoints, showLine, showControl, lineColor) {
+        var x1 = controls[0];
+        var y1 = controls[1];
+        var s1 = controls[2];
+        var t1 = controls[3];
+        var x2 = controls[4];
+        var y2 = controls[5];
+        var s2 = controls[6];
+        var t2 = controls[7];
+
+        var inc = 1 / segments;
+        var u = 0;
+        drawPoint(x1, y1, 'green');
+        drawPoint(x2, y2, 'green');
+        drawPoint(s1, t1, 'red');
+        drawPoint(s2, t2, 'red');
+
+        var startX = x1;
+        var startY = y1;
+        var endX = 0;
+        var endY = 0;
+
+        //drawLine(s1, t1, x2, y2, 'red');
+
+        for(let i = 0; i < segments + 1; i++){
+            endX = (x1 * (2 * u**3 - 3 * u**2 + 1)) + (x2 * (-2 * u**3 + 3 * u**2)) + (s1 * (u**3 - 2 * u**2 + u)) + (s2 * (u**3 - u**2));
+            endY = (y1 * ((2 * u**3) - (3 * u**2) + 1)) + (y2 * ((-2 * u**3) + (3 * u**2))) + (t1 * ((u**3) - (2 * u**2) + u)) + (t2 * ((u**3) - (u**2)));
+            drawLine(startX, startY, endX, endY, lineColor);
+            startX = endX;
+            startY = endY;
+            u += inc;
+        }
     }
 
     //------------------------------------------------------------------
@@ -251,4 +282,4 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     });
 
     return api;
-}(1000, 1000, true));
+}(200, 200, true));
