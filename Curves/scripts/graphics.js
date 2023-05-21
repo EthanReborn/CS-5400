@@ -82,35 +82,36 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
 
         //q0
         if(m > 1 && x2 > x1 && y1 > y2){
-            drawBresenHam(x1, y1, x2, y2, -1, 1, deltaX, deltaY, true, false, color);
+            drawBresenHam(x1, y1, x2, y2, -1, 1, deltaX, deltaY, true, false, false, color);
         }
         //q1
         else if(m >= 0 && m <= 1 && x2 > x1 && y2 < y1){
-            drawBresenHam(x1, y1, x2, y2, 1, -1, deltaX, deltaY, false, false, color);
+            drawBresenHam(x1, y1, x2, y2, 1, -1, deltaX, deltaY, false, false, false, color);
         }
         //q2
         else if(m >= 0 && m <= 1 && x1 < x2 && y2 >= y1){
-            drawBresenHam(x1, y1, x2, y2, -1 , -1, deltaX, deltaY, false, true, color);
+            drawBresenHam(x1, y1, x2, y2, -1 , -1, deltaX, deltaY, false, true, false, color);
         }
         //q3
         else if(m > 1 && x2 >= x1 && y1 < y2){
-            drawBresenHam(x1, y1, x2, y2, 1, 1, deltaX, deltaY, false, false, color); //originally true false
+            drawBresenHam(x1, y1, x2, y2, 1, 1, deltaX, deltaY, true, false, true, color); //originally true false
+            //drawLineQ3(x1, y1, x2, y2, color);
         }
         //q4
         else if(m > 1 && x2 < x1 && y2 > y1){
-            drawBresenHam(x1, y1, x2, y2, 1, -1, deltaX, deltaY, true, false, color);
+            drawBresenHam(x1, y1, x2, y2, 1, -1, deltaX, deltaY, true, false, false, color);
         }
         //q5
         else if(m >= 0 && m <= 1 && x2 < x1 && y2 > y1){
-            drawBresenHam(x1, y1, x2, y2, 1, -1, deltaX, deltaY, false, true, color);
+            drawBresenHam(x1, y1, x2, y2, 1, -1, deltaX, deltaY, false, true, false, color);
         }
         //q6
-        else if (m >= 0 && m <= 1 && x2 < x1 && y2 >= y1){
-            drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, false, false, color);
+        else if (m >= 0 && m <= 1 && x2 < x1 && y2 <= y1){
+            drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, false, false, true, color);
         }
         //q7
         else if (m > 1 && x2 <= x1 && y2 < y1){
-            drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, true, false, color);
+            drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, true, false, false, color);
         }
     }
 
@@ -119,17 +120,47 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     // Bresenham line drawing algorithm.
     //
     //------------------------------------------------------------------
-    function drawBresenHam(x1, y1, x2, y2, incX, incY, deltaX, deltaY, swapDelta, swapPoints, color){
+
+    function drawLineQ3(x1, y1, x2, y2, color) {
+        var deltaY = Math.abs(y1 - y2);
+        var deltaX = Math.abs(x1 - x2);
+        var pk = (2 * deltaX) - deltaY;
+        var curY = x1;
+        var curX = y1;
+        
+        for(let i =0; i<deltaY; i++){
+            //d1 - d2 = positive go up, else go down
+            api.drawPixel(curY, curX, color);
+            if(pk >= 0){
+                curX++;
+                curY++;
+                //pk+1
+                pk = pk + 2 * deltaX - 2 * deltaY;
+            }else{
+                curX++;
+                //pk+1
+                pk = pk + 2 * deltaX;
+            }
+        }
+    }
+
+
+    function drawBresenHam(x1, y1, x2, y2, incX, incY, deltaX, deltaY, swapDelta, swapEnd, swapXY, color){
         var limit = 0;
         var pkinc0;
         var pkinc1;
 
-        if(swapPoints){
+        if(swapEnd){
             var curY = y2;
             var curX = x2;
         }else{
             var curY = y1;
             var curX = x1;
+        }
+
+        if(swapXY){
+            var curY = x1;
+            var curX = y1;
         }
 
         if(swapDelta){
@@ -181,45 +212,43 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         var s2 = controls[6];
         var t2 = controls[7];
 
-        drawPoint(x1, y1, 'green');
-        drawPoint(x2, y2, 'green');
-        drawPoint(s1, t1, 'red');
-        drawPoint(s2, t2, 'red');
+        if(showControl){
+            drawPoint(x1, y1, 'green');
+            drawPoint(x2, y2, 'green');
+            drawLine(x1, y1, s1, t1, 'red');
+            drawPoint(s1, t1, 'red');
+            drawLine(x2, y2, s2, t2, 'red');
+            drawPoint(s2, t2, 'red');
+        }
 
         var startX = x1;
         var startY = y1;
         var endX = 0;
         var endY = 0;
 
-        //drawLine(s1, t1, x2, y2, 'red');
+        //drawLine(100, 100, 50, 90, 'red');
         //with parentheses 
         //endY = (y1 * ((2 * u**3) - (3 * u**2) + 1)) + (y2 * ((-2 * u**3) + (3 * u**2))) + (t1 * ((u**3) - (2 * u**2) + u)) + (t2 * ((u**3) - (u**2)));
 
         var inc = 1 / segments;
-        var u = inc;
+        var u = 0;
 
-        for(let i = 0; i < segments + 1; i++){
+        while(u <= 1){
             endX = (x1 * ((2 * u**3) - (3 * u**2) + 1)) + (x2 * ((-2 * u**3) + (3 * u**2))) + (s1 * ((u**3) - (2 * u**2) + u)) + (s2 * ((u**3) - (u**2)));
             endY = (y1 * ((2 * u**3) - (3 * u**2) + 1)) + (y2 * ((-2 * u**3) + (3 * u**2))) + (t1 * ((u**3) - (2 * u**2) + u)) + (t2 * ((u**3) - (u**2)));
             
-            drawLine(startX, startY, endX, endY, lineColor);
+            if(showLine){
+                drawLine(startX, startY, endX, endY, lineColor);
+            }
           
             if(showPoints){
                 drawPoint(endX, endY, 'red');
             }
-
-            // var m = Math.abs((endY - startY) / (endX - startX));
-            // if(m >= 0 && m <= 1 && x1 < x2 && y2 >= y1){
-            //     drawLine(startX, startY, endX, endY, 'white');
-            // }
-
+            
             startX = endX;
             startY = endY;
             u += inc;
         }
-
-        //drawLine(30, 150, 38.31, 167.27999, 'white');
-        // drawLine(30, 150, 40, 168, 'white');
     }
 
     //------------------------------------------------------------------
@@ -228,6 +257,49 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function drawCurveCardinal(controls, segments, showPoints, showLine, showControl, lineColor) {
+        var pkmx = controls[0]; //pk-1x
+        var pkmy = controls[1];
+        var pkx = controls[2];
+        var pky = controls[3];
+        var pk1x = controls[4];
+        var pk1y = controls[5];
+        var pk2x = controls[6];
+        var pk2y = controls[7];
+
+        var t = controls[8]; //tension
+        var s = (1 - t) / 2;
+
+        startX = pkx;
+        startY = pky;
+
+        if(showControl){
+            drawPoint(pkmx, pkmy, 'green');
+            drawLine(pkmx, pkmy, pkx, pky, 'red');
+            drawPoint(pkx, pky, 'green');
+            drawPoint(pk1x, pk1y, 'red');
+            drawLine(pk1x, pk1y, pk2x, pk2y, 'red');
+            drawPoint(pk2y, pk2x, 'red');
+        }
+
+        var u = 0; 
+        var inc = 1 / segments;
+
+        while(u <= 1){
+            endX = (pkmx * ((-s * u**3) + (2 * s * u**2) - (s * u))) + (pkx * (((2 - s) * u**3) + (s - 3) * u**2 + 1)) + (pk1x * ((s - 2) * u**3) + ((3 - 2*s) * u**2) + (s * u)) + () + ();
+            endY = (y1 * ((2 * u**3) - (3 * u**2) + 1)) + (y2 * ((-2 * u**3) + (3 * u**2))) + (t1 * ((u**3) - (2 * u**2) + u)) + (t2 * ((u**3) - (u**2)));
+            
+            if(showLine){
+                drawLine(startX, startY, endX, endY, lineColor);
+            }
+          
+            if(showPoints){
+                drawPoint(endX, endY, 'red');
+            }
+            
+            startX = endX;
+            startY = endY;
+            u += inc;
+        }
     }
 
     //------------------------------------------------------------------

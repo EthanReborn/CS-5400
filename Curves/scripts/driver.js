@@ -2,6 +2,12 @@
 MySample.main = (function(graphics) {
     'use strict';
 
+    var x1 = graphics.sizeX / 2;
+    var y1 = graphics.sizeY / 2;
+    var x2 = graphics.sizeX;
+    var y2 = graphics.sizeY;
+    let reverse = true;
+
     let previousTime = performance.now();
 
     //------------------------------------------------------------------
@@ -10,6 +16,34 @@ MySample.main = (function(graphics) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
+        const deltaY = Math.abs(y2 - y1);
+        const deltaX = Math.abs(x2 - x1);
+        var m = deltaY / deltaX;
+        //q0
+        if(m > 1 && x2 > x1 && y1 > y2){
+            reverse? x2--: x2++;  
+        }//q1
+        else if(m >= 0 && m <= 1 && x2 > x1 && y2 < y1){
+            reverse? y2--: y2++;
+        }//q2
+        else if(m >= 0 && m <= 1 && x1 < x2 && y2 >= y1){
+            reverse? y2--: y2++; 
+        }//q3
+        else if(m > 1 && x2 >= x1 && y1 < y2){
+            reverse? x2++: x2--;
+        }//q4
+        else if(m > 1 && x2 < x1 && y2 > y1){
+            reverse? x2++: x2--;
+        }//q5
+        else if(m >= 0 && m <= 1 && x2 < x1 && y2 > y1){
+            reverse? y2++: y2--;
+        }//q6
+        else if (m >= 0 && m <= 1 && x2 < x1){
+            reverse? y2++: y2--; 
+        }  //q7
+        else if (m > 1 && x2 <= x1 && y2 < y1){
+            reverse? x2--: x2++;
+        }
     }
 
     //------------------------------------------------------------------
@@ -19,9 +53,14 @@ MySample.main = (function(graphics) {
     //------------------------------------------------------------------
     function render() {
         graphics.clear();
-        const controls = [graphics.sizeX * .1, graphics.sizeY / 2, graphics.sizeX * .2, graphics.sizeY * .8, graphics.sizeX * .8, graphics.sizeY / 2, graphics.sizeX * .9, graphics.sizeY * .8]; 
         //[x1, y1, s1, t1, x2, y2, s2, t2]
-        graphics.drawCurve(graphics.Curve.Hermite, controls, 10, false, true, true, 'blue');
+        const hermiteControls = [graphics.sizeX * .1, graphics.sizeY / 2, graphics.sizeX * .2, graphics.sizeY * .8, graphics.sizeX * .8, graphics.sizeY / 2, graphics.sizeX * .9, graphics.sizeY * .8]; 
+        //[pk-1x, pk-1y, pkx, pky, pk+1x, pk+1y, pk+2x, pk+2y]
+        const cardinalControls = [graphics.sizeX * .1, graphics.sizeY * .9, graphics.sizeX * .2, graphics.sizeY * .5, graphics.sizeX * .8, graphics.sizeY * .5, graphics.sizeX * .9, graphics.sizeY * .9, 0.5];
+        //graphics.drawCurve(graphics.Curve.Hermite, controls, 15, true, true, true, 'blue');
+        graphics.drawCurve(graphics.Curve.Cardinal, cardinalControls, 15, true, true, true, 'blue');
+        //graphics.drawLine(x1, y1, x2, y2, 'blue');
+        //graphics.drawLine(100, 100, 50, 90, 'red');
     }
 
     //------------------------------------------------------------------
