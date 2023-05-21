@@ -94,7 +94,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
         //q3
         else if(m > 1 && x2 >= x1 && y1 < y2){
-            drawBresenHam(x1, y1, x2, y2, 1, 1, deltaX, deltaY, true, false, color);
+            drawBresenHam(x1, y1, x2, y2, 1, 1, deltaX, deltaY, false, false, color); //originally true false
         }
         //q4
         else if(m > 1 && x2 < x1 && y2 > y1){
@@ -171,6 +171,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function drawCurveHermite(controls, segments, showPoints, showLine, showControl, lineColor) {
+        //(s1, t1) = P'(x, y)
         var x1 = controls[0];
         var y1 = controls[1];
         var s1 = controls[2];
@@ -180,8 +181,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         var s2 = controls[6];
         var t2 = controls[7];
 
-        var inc = 1 / segments;
-        var u = 0;
         drawPoint(x1, y1, 'green');
         drawPoint(x2, y2, 'green');
         drawPoint(s1, t1, 'red');
@@ -193,15 +192,34 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         var endY = 0;
 
         //drawLine(s1, t1, x2, y2, 'red');
+        //with parentheses 
+        //endY = (y1 * ((2 * u**3) - (3 * u**2) + 1)) + (y2 * ((-2 * u**3) + (3 * u**2))) + (t1 * ((u**3) - (2 * u**2) + u)) + (t2 * ((u**3) - (u**2)));
+
+        var inc = 1 / segments;
+        var u = inc;
 
         for(let i = 0; i < segments + 1; i++){
-            endX = (x1 * (2 * u**3 - 3 * u**2 + 1)) + (x2 * (-2 * u**3 + 3 * u**2)) + (s1 * (u**3 - 2 * u**2 + u)) + (s2 * (u**3 - u**2));
+            endX = (x1 * ((2 * u**3) - (3 * u**2) + 1)) + (x2 * ((-2 * u**3) + (3 * u**2))) + (s1 * ((u**3) - (2 * u**2) + u)) + (s2 * ((u**3) - (u**2)));
             endY = (y1 * ((2 * u**3) - (3 * u**2) + 1)) + (y2 * ((-2 * u**3) + (3 * u**2))) + (t1 * ((u**3) - (2 * u**2) + u)) + (t2 * ((u**3) - (u**2)));
+            
             drawLine(startX, startY, endX, endY, lineColor);
+          
+            if(showPoints){
+                drawPoint(endX, endY, 'red');
+            }
+
+            // var m = Math.abs((endY - startY) / (endX - startX));
+            // if(m >= 0 && m <= 1 && x1 < x2 && y2 >= y1){
+            //     drawLine(startX, startY, endX, endY, 'white');
+            // }
+
             startX = endX;
             startY = endY;
             u += inc;
         }
+
+        //drawLine(30, 150, 38.31, 167.27999, 'white');
+        // drawLine(30, 150, 40, 168, 'white');
     }
 
     //------------------------------------------------------------------
@@ -282,4 +300,4 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     });
 
     return api;
-}(200, 200, true));
+}(300, 300, true));
