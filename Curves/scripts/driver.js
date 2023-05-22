@@ -54,13 +54,16 @@ MySample.main = (function(graphics) {
     function render() {
         graphics.clear();
         //[x1, y1, s1, t1, x2, y2, s2, t2]
-        const hermiteControls = [graphics.sizeX * .1, graphics.sizeY / 2, graphics.sizeX * .2, graphics.sizeY * .8, graphics.sizeX * .8, graphics.sizeY / 2, graphics.sizeX * .9, graphics.sizeY * .8]; 
+        const hermiteControls = [graphics.sizeX * .1, graphics.sizeY / 2, graphics.sizeX * .1, graphics.sizeY * -.4, graphics.sizeX * .8, graphics.sizeY / 2, graphics.sizeX * -.1, graphics.sizeY * -.3]; 
         //[pk-1x, pk-1y, pkx, pky, pk+1x, pk+1y, pk+2x, pk+2y]
         const cardinalControls = [graphics.sizeX * .1, graphics.sizeY * .9, graphics.sizeX * .2, graphics.sizeY * .5, graphics.sizeX * .8, graphics.sizeY * .5, graphics.sizeX * .9, graphics.sizeY * .9, 0.5];
-        //graphics.drawCurve(graphics.Curve.Hermite, controls, 15, true, true, true, 'blue');
-        graphics.drawCurve(graphics.Curve.Cardinal, cardinalControls, 15, true, true, true, 'blue');
-        //graphics.drawLine(x1, y1, x2, y2, 'blue');
-        //graphics.drawLine(100, 100, 50, 90, 'red');
+        //[p0x, poy, p1x, p1y, p2x, p2y, p3x, p3y]
+        const bezierControls = [graphics.sizeX * .1, graphics.sizeY / 2, graphics.sizeX * .3, graphics.sizeY * .8, graphics.sizeX * .7, graphics.sizeY * .2, graphics.sizeX * .9, graphics.sizeY * .5];
+
+        //graphics.drawCurve(graphics.Curve.Hermite, hermiteControls, 15, true, true, true, 'blue');
+        graphics.drawCurve(graphics.Curve.Cardinal, cardinalControls, 10, true, true, true, 'blue');
+        //graphics.drawCurve(graphics.Curve.Bezier, bezierControls, true, true, true, 'blue');
+        //graphics.drawLine(x1, y1, x2, y2, 'red');
     }
 
     //------------------------------------------------------------------

@@ -82,7 +82,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
 
         //q0
         if(m > 1 && x2 > x1 && y1 > y2){
-            drawBresenHam(x1, y1, x2, y2, -1, 1, deltaX, deltaY, true, false, false, color);
+            drawBresenHam(x1, y1, x2, y2, -1, 1, deltaX, deltaY, true, false, true, color);
         }
         //q1
         else if(m >= 0 && m <= 1 && x2 > x1 && y2 < y1){
@@ -107,11 +107,11 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
         //q6
         else if (m >= 0 && m <= 1 && x2 < x1 && y2 <= y1){
-            drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, false, false, true, color);
+            drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, false, false, false, color);
         }
         //q7
         else if (m > 1 && x2 <= x1 && y2 < y1){
-            drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, true, false, false, color);
+            drawBresenHam(x1, y1, x2, y2, -1, -1, deltaX, deltaY, true, false, true, color);
         }
     }
 
@@ -120,30 +120,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     // Bresenham line drawing algorithm.
     //
     //------------------------------------------------------------------
-
-    function drawLineQ3(x1, y1, x2, y2, color) {
-        var deltaY = Math.abs(y1 - y2);
-        var deltaX = Math.abs(x1 - x2);
-        var pk = (2 * deltaX) - deltaY;
-        var curY = x1;
-        var curX = y1;
-        
-        for(let i =0; i<deltaY; i++){
-            //d1 - d2 = positive go up, else go down
-            api.drawPixel(curY, curX, color);
-            if(pk >= 0){
-                curX++;
-                curY++;
-                //pk+1
-                pk = pk + 2 * deltaX - 2 * deltaY;
-            }else{
-                curX++;
-                //pk+1
-                pk = pk + 2 * deltaX;
-            }
-        }
-    }
-
 
     function drawBresenHam(x1, y1, x2, y2, incX, incY, deltaX, deltaY, swapDelta, swapEnd, swapXY, color){
         var limit = 0;
@@ -215,10 +191,8 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         if(showControl){
             drawPoint(x1, y1, 'green');
             drawPoint(x2, y2, 'green');
-            drawLine(x1, y1, s1, t1, 'red');
-            drawPoint(s1, t1, 'red');
-            drawLine(x2, y2, s2, t2, 'red');
-            drawPoint(s2, t2, 'red');
+            drawLine(x1, y1, x1 + s1, y1 + t1, 'red'); // Draw first tangent vector
+            drawLine(x2, y2, x2 + s2, y2 + t2, 'red'); // Draw second tangent vector
         }
 
         var startX = x1;
@@ -269,25 +243,46 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         var t = controls[8]; //tension
         var s = (1 - t) / 2;
 
-        startX = pkx;
-        startY = pky;
+        var startX = pkx;
+        var startY = pky;
+        var endX = pk1x;
+        var endY = pk1y;
 
         if(showControl){
-            drawPoint(pkmx, pkmy, 'green');
+            drawPoint(pkmx, pkmy, 'red');
             drawLine(pkmx, pkmy, pkx, pky, 'red');
-            drawPoint(pkx, pky, 'green');
-            drawPoint(pk1x, pk1y, 'red');
+            drawPoint(pkx, pky, 'yellow');
+            drawPoint(pk1x, pk1y, 'green');
             drawLine(pk1x, pk1y, pk2x, pk2y, 'red');
-            drawPoint(pk2y, pk2x, 'red');
+            drawPoint(pk2x, pk2y, 'red');
         }
 
         var u = 0; 
         var inc = 1 / segments;
+        console.log('inc: ' + inc);
 
         while(u <= 1){
-            endX = (pkmx * ((-s * u**3) + (2 * s * u**2) - (s * u))) + (pkx * (((2 - s) * u**3) + (s - 3) * u**2 + 1)) + (pk1x * ((s - 2) * u**3) + ((3 - 2*s) * u**2) + (s * u)) + () + ();
-            endY = (y1 * ((2 * u**3) - (3 * u**2) + 1)) + (y2 * ((-2 * u**3) + (3 * u**2))) + (t1 * ((u**3) - (2 * u**2) + u)) + (t2 * ((u**3) - (u**2)));
+            //endX = (pkmx * ((-1 * s * u**3) + (2 * s * u**2) - (s * u))) + (pkx * (((2 - s) * u**3) + ((s - 3) * u**2) + 1)) + (pk1x * ((s - 2) * u**3) + ((3 - 2*s) * u**2) + (s * u)) + (pk2x * ((s * u**3) - (s * u**2)));
+            //endY = (pkmy * ((-1 * s * u**3) + (2 * s * u**2) - (s * u))) + (pky * (((2 - s) * u**3) + ((s - 3) * u**2) + 1)) + (pk1y * ((s - 2) * u**3) + ((3 - 2*s) * u**2) + (s * u)) + (pk2y * ((s * u**3) - (s * u**2)));
             
+            endX =
+                pkmx * ((-1 * s * u ** 3) + (2 * s * u ** 2) - (s * u)) +
+                pkx * (((2 - s) * u ** 3) + ((s - 3) * u ** 2) + 1) +
+                pk1x * ((s - 2) * u ** 3 + (3 - 2 * s) * u ** 2 + s * u) +
+                pk2x * (s * u ** 3 - s * u ** 2);
+            endY =
+                pkmy * ((-1 * s * u ** 3) + (2 * s * u ** 2) - (s * u)) +
+                pky * (((2 - s) * u ** 3) + ((s - 3) * u ** 2) + 1) +
+                pk1y * ((s - 2) * u ** 3 + (3 - 2 * s) * u ** 2 + s * u) +
+                pk2y * (s * u ** 3 - s * u ** 2);
+
+            if(u == 2 * inc){
+                console.log(startX);
+                console.log(startY);
+                console.log(endX);
+                console.log(endY);
+            }
+
             if(showLine){
                 drawLine(startX, startY, endX, endY, lineColor);
             }
@@ -308,6 +303,71 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function drawCurveBezier(controls, segments, showPoints, showLine, showControl, lineColor) {
+        //C ( n ,k ) = n ! / k ! ( n − k ) !
+        //c(n, k) = binomial coefficients 
+        // n = 3
+
+        //[p0x, poy, p1x, p1y, p2x, p2y, p3x, p3y]
+        var P0x = controls[0];
+        var P0y = controls[1];
+        var P1x = controls[2];
+        var P1y = controls[3];
+        var P2x = controls[4];
+        var P2y = controls[5];
+        var P3x = controls[6];
+        var P3y = controls[7];
+
+        var xList = [controls[0], controls[2], controls[4], controls[6]];
+        var yList = [controls[1], controls[3], controls[5], controls[7]];
+
+        if(showPoints){
+            drawPoint(P0x, P0y, 'green');
+            drawPoint(P1x, P1y, 'red');
+            drawPoint(P2x, P2y, 'red');
+            drawPoint(P3x, P3y, 'green');
+        }
+
+        var n = 3;
+        var inc = 1 / segments;
+        var u = 0;
+
+        var startX = P0x;
+        var startY = P0y;
+        var endX;
+        var endY;
+
+        cnkList = [];
+
+        for(let k = 0; k <= n; k++){
+            var cnk = factorial(n) / factorial(k) * factorial(n - k);
+            var bez = cnk * (u**k) * (1 - u)**(n-k);
+            console.log(cnk);
+            console.log(bez);
+        }   
+
+        while(u <= 1){
+
+            for(let k = 0; k <= n; k++){
+                var cnk = factorial(n) / factorial(k) * factorial(n - k);
+                var bez = cnk * (u**k) * (1 - u)**(n-k);
+                endX = xList[k] * bez;
+                endY = yList[k] * bez;
+            }          
+
+            drawLine(startX, startY, endX, endY, lineColor);
+
+            u += inc;
+        }
+
+
+    }
+
+    function factorial (num) { 
+        if(num == 1 || num == 0){
+            return 1;
+        }else{
+            return num * factorial(num -1);
+        }
     }
 
     //------------------------------------------------------------------
@@ -317,6 +377,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function drawCurveBezierMatrix(controls, segments, showPoints, showLine, showControl, lineColor) {
+
     }
 
     //------------------------------------------------------------------
