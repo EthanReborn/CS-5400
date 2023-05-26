@@ -6,15 +6,32 @@ MySample.main = (function(graphics) {
     var y1 = graphics.sizeY * .5;
     var x2 = graphics.sizeX * .8;
     var y2 = graphics.sizeY * .5;
+    var x3 = graphics.sizeX * .5;
+    var y3 = graphics.sizeY * .8;
     let reverse = false;
-    //[p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y]
-    var a1 = x1+50;
-    var b1 = y1-50;
-    var a2 = x2-50;
-    var b2 = y2-50;
 
-    var c1 = y1+50;
-    var c2 = y2+50;
+ 
+    function makePrim(verts, center){
+        let prim = {
+            verts: verts,
+            center: center,
+        }
+        let numPoints = verts.length / 2;
+        let totalX = 0;
+        let totalY = 0;
+
+        for(let i = 0; i < verts.length; i++){
+            if(i % 2 == 0){
+                totalX += verts[i];
+            }else{
+                totalY += verts[i];
+            }
+        }
+
+        let center 
+        return prim;
+    }
+    
 
     let previousTime = performance.now();
 
@@ -27,56 +44,6 @@ MySample.main = (function(graphics) {
     //
     //------------------------------------------------------------------
     function update(elapsedTime) {
-
-        //console.log(elapsedTime);
-
-        if(elapsedTime < 2500){
-            type = graphics.Curve.Hermite;
-        }else if(elapsedTime < 5000){
-            type = graphics.Curve.Cardinal;
-        }else if(elapsedTime < 7500){
-            type = graphics.Curve.Bezier;
-        }else if(elapsedTime < 10000){
-            type = graphics.Curve.BezierMatrix;
-        }else if(elapsedTime > 10000){
-            type = undefined;
-            
-            if(reverse == false){
-                y1++;
-                y2++;
-            }if(y1 == graphics.sizeY - 30){
-                reverse = !reverse;
-            }if(y1 == 30){
-                reverse = !reverse;
-            }if(reverse == true){
-                y1--;
-                y2--;
-            }
-            
-            if(y1 <= 50){
-                b1++;
-                b2++;
-            }else if(b1 > y1 - 50){
-                b1--;
-                b2--;
-             }else if(b1 < y1 - 50){
-                b1++;
-                b2++;
-            }
-
-            if(y1 > graphics.sizeY -50){
-                c1--;
-                c2--;
-            }
-            else if(c1 < y1 + 50){
-                c1++;
-                c2++;
-             }else if(c1 > y1 + 50){
-                c1--;
-                c2--;
-            }
-            
-        }
 
         const deltaY = Math.abs(y2 - y1);
         const deltaX = Math.abs(x2 - x1);
@@ -129,28 +96,21 @@ MySample.main = (function(graphics) {
         //graphics.drawCurve(graphics.Curve.Bezier, bezierControls, 10, true, true, true, 'blue');
         //graphics.drawCurve(graphics.Curve.BezierMatrix, bezierMatrixControls, 10, true, true, true, 'blue');
         //graphics.drawLine(x1, y1, x2, y2, 'red');
+        
+        let prim1 = makePrim([x1, y1, x2, y2, x3, y3], [(x1 + x2) / 2, (y1 + y2) / 2]); //TODO, function for calculating center 
 
-        if(type == graphics.Curve.Hermite){
-            control = hermiteControls;
-            graphics.drawCurve(type, control, 10, true, true, true, 'blue');
-        }else if(type == graphics.Curve.Cardinal){
-            control = cardinalControls;
-            graphics.drawCurve(type, control, 10, true, true, true, 'blue');
-        }else if(type == graphics.Curve.Bezier){
-            control = bezierControls;
-            graphics.drawCurve(type, control, 10, true, true, true, 'blue');
-        }else if(type == graphics.Curve.BezierMatrix){
-            control = bezierMatrixControls;
-            graphics.drawCurve(type, control, 10, true, true, true, 'blue');
-        }else{
-            graphics.clear();
-            graphics.drawPoint(x1, y1, 'white');
-            graphics.drawPoint(x2, y2, 'white');
-            graphics.drawPoint(x2-100, y2, 'white');
-            graphics.drawCurve(graphics.Curve.Bezier, [x1, y1, a1, b1, a2, b2, x2, y2], 20, true, true, false, 'white');
-            graphics.drawCurve(graphics.Curve.Bezier, [x1, y1, a1, c1, a2, c2, x2, y2], 20, true, true, false, 'white');
-        }
+        graphics.drawPrimitive(prim1, true, 'red');
 
+        let point = [100, 100];
+
+        graphics.drawPoint(point, 'red');
+        let distance = [50, 0];
+        //console.log(distance);
+        point = graphics.translatePoint(point, distance);
+
+        graphics.drawPoint(point, 'green');
+        graphics.translatePrimitive(prim1, distance);
+        graphics.drawPrimitive(prim1, 'green');
     }
 
     //------------------------------------------------------------------

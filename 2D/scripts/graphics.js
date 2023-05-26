@@ -62,7 +62,9 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     // Helper function used to draw an X centered at a point.
     //
     //------------------------------------------------------------------
-    function drawPoint(x, y, ptColor) {
+    function drawPoint(points, ptColor) {
+        let x = points[0];
+        let y = points[1];
         drawPixel(x - 1, y - 1, ptColor);
         drawPixel(x + 1, y - 1, ptColor);
         drawPixel(x, y, ptColor);
@@ -313,18 +315,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         var t = controls[8]; //tension
         var s = (1 - t) / 2;
 
-        var p0Primex = 0.5 * ( 1 - t ) * ( pk1x - pkmx ); 
-        var p0Primey = 0.5 * ( 1 - t ) * ( pk1y - pkmy ); 
-
-        var p1Primex = 0.5 * ( 1 - t ) * ( pk2x - pkx ); 
-        var p1Primey = 0.5 * ( 1 - t ) * ( pk2y - pky ); 
-
-        // var p0Primex = s * (pk1x - pkmx);
-        // var p0Primey = s * (pk1y - pkmy);
-
-        // var p1Primex = s * (pk2x - pkx);
-        // var p1Primey = s * (pk2y - pky);
-
         var startX = pkx;
         var startY = pky;
         var endX = pk1x;
@@ -360,17 +350,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
             //     pk1y * ((s - 2) * u ** 3 + (3 - 2 * s) * u ** 2 + s * u) +
             //     pk2y * (s * u ** 3 - s * u ** 2);
 
-            // endX =
-            //     p0Primex * ((-1 * s * u ** 3) + (2 * s * u ** 2) - (s * u)) +
-            //     pkx * (((2 - s) * u ** 3) + ((s - 3) * u ** 2) + 1) +
-            //     pk1x * ((s - 2) * u ** 3 + (3 - 2 * s) * u ** 2 + s * u) +
-            //     p1Primex * (s * u ** 3 - s * u ** 2);
-            // endY =
-            //     p0Primey * ((-1 * s * u ** 3) + (2 * s * u ** 2) - (s * u)) +
-            //     pky * (((2 - s) * u ** 3) + ((s - 3) * u ** 2) + 1) +
-            //     pk1y * ((s - 2) * u ** 3 + (3 - 2 * s) * u ** 2 + s * u) +
-            //     p1Primey * (s * u ** 3 - s * u ** 2);
-
             endX =
                 pkmx * preU(u, s, 0) +
                 pkx *  preU(u, s, 1) +
@@ -396,14 +375,14 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
     }
 
-      function respectToU3() {
+    function respectToU3() {
         const memo = [];
-    
+
         function compute(u, k) {
             let n = 3;
             return Math.pow(u, k) * Math.pow(1 - u, n - k);
         }
-    
+
         return function inner(u, k) {
             const index = Math.floor(u * 1000);
             if (memo[index] === undefined || memo[index][k] === undefined) {
@@ -626,6 +605,141 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
     }
 
+    //------------------------------------------------------------------
+    //
+    // Renders a primitive of the form: {
+    //    verts: [ {x, y}, ...],    // Must have at least 2 verts
+    //    center: { x, y }
+    // }
+    // 
+    // connect: If true, the last vertex and first vertex have a line drawn between them.
+    //
+    // color: The color to use when drawing the lines
+    //
+    //------------------------------------------------------------------
+    function drawPrimitive(primitive, connect, color) {
+        for(let i = 0; i < primitive.verts.length - 2; i += 2){
+            drawLine(primitive.verts[i], primitive.verts[i+1], primitive.verts[i+2], primitive.verts[i+3], color);
+        }
+        if(connect){
+            drawLine(primitive.verts[primitive.verts.length -2], primitive.verts[primitive.verts.length -1], primitive.verts[0], primitive.verts[1], color);
+        }
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Translates a point of the form: { x, y }
+    //
+    // distance: { x, y }
+    //
+    //------------------------------------------------------------------
+    function translatePoint(point, distance) {
+        let newPoint = [];
+        let x = point[0] + distance[0];
+        let y = point[1] + distance[1];
+        newPoint.push(x);
+        newPoint.push(y);
+        return newPoint;
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Translates a primitive of the form: {
+    //    verts: [],    // Must have at least 2 verts
+    //    center: { x, y }
+    // }
+    //
+    // distance: { x, y }
+    //
+    //------------------------------------------------------------------
+    function translatePrimitive(primitive, distance) {
+        if(primitive.verts.length < 4){
+            console.log("error: primitive must have at least 2 points.");
+        }
+        //update center code 
+        // let newCenter = [];
+        // let newX = primitive.center[0] + distance[0];   
+        // let newY = primitive.center[1] + distance[1];   
+        // newCenter.push(newX, newY);
+        // return newCenter;
+
+        for(let i = 0; i < primitive.verts.length; i++){
+            if(i % 2 == 0){
+                primitive.verts[i] += distance[0];
+            }else{
+                primitive.verts[i] += distance[1];
+            }
+        }
+       
+        primitive.center[0] += distance[0];
+        primitive.center[1] += distance[1];
+        
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Scales a primitive of the form: {
+    //    verts: [],    // Must have at least 2 verts
+    //    center: { x, y }
+    // }
+    //
+    // scale: { x, y }
+    //
+    //------------------------------------------------------------------
+    function scalePrimitive(primitive, scale) {
+
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Rotates a primitive of the form: {
+    //    verts: [],    // Must have at least 2 verts
+    //    center: { x, y }
+    // }
+    //
+    // angle: radians
+    //
+    //------------------------------------------------------------------
+    function rotatePrimitive(primitive, angle) {
+
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Translates a curve.
+    //    type: Cardinal, Bezier
+    //    controls: appropriate to the curve type
+    //    distance: { x, y }
+    //
+    //------------------------------------------------------------------
+    function translateCurve(type, controls, distance) {
+
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Scales a curve relative to its center.
+    //    type: Cardinal, Bezier
+    //    controls: appropriate to the curve type
+    //    scale: { x, y }
+    //
+    //------------------------------------------------------------------
+    function scaleCurve(type, controls, scale) {
+
+    }
+
+    //------------------------------------------------------------------
+    //
+    // Rotates a curve about its center.
+    //    type: Cardinal, Bezier
+    //    controls: appropriate to the curve type
+    //    angle: radians
+    //
+    //------------------------------------------------------------------
+    function rotateCurve(type, controls, angle) {
+
+    }
+
     //
     // This is what we'll export as the rendering API
     const api = {
@@ -633,7 +747,15 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         drawPixel: drawPixel,
         drawLine: drawLine,
         drawCurve: drawCurve,
-        drawPoint: drawPoint
+        drawPoint: drawPoint,
+        drawPrimitive: drawPrimitive,
+        translatePrimitive: translatePrimitive,
+        scalePrimitive: scalePrimitive,
+        rotatePrimitive: rotatePrimitive,
+        translateCurve: translateCurve,
+        scaleCurve: scaleCurve,
+        rotateCurve: rotateCurve,
+        translatePoint: translatePoint
     };
 
     Object.defineProperty(api, 'sizeX', {
@@ -655,4 +777,4 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     });
 
     return api;
-}(300, 300, true));
+}(500, 500, true));
