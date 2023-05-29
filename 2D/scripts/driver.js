@@ -11,11 +11,8 @@ MySample.main = (function(graphics) {
     let reverse = false;
 
  
-    function makePrim(verts, center){
-        let prim = {
-            verts: verts,
-            center: center,
-        }
+    function makePrim(verts){
+        //calculate center 
         let numPoints = verts.length / 2;
         let totalX = 0;
         let totalY = 0;
@@ -27,11 +24,15 @@ MySample.main = (function(graphics) {
                 totalY += verts[i];
             }
         }
+        let center = [totalX / numPoints, totalY / numPoints];
 
-        let center 
+        let prim = {
+            verts: verts,
+            center: center,
+        }
+
         return prim;
     }
-    
 
     let previousTime = performance.now();
 
@@ -85,7 +86,7 @@ MySample.main = (function(graphics) {
         //[x1, y1, s1, t1, x2, y2, s2, t2]
         const hermiteControls = [graphics.sizeX * .1, graphics.sizeY / 2, graphics.sizeX * .1, graphics.sizeY * -.4, graphics.sizeX * .8, graphics.sizeY / 2, graphics.sizeX * -.1, graphics.sizeY * -.3]; 
         //[pk-1x, pk-1y, pkx, pky, pk+1x, pk+1y, pk+2x, pk+2y]
-        const cardinalControls = [graphics.sizeX * .1, graphics.sizeY * .2, graphics.sizeX * .2, graphics.sizeY * .5, graphics.sizeX * .8, graphics.sizeY * .5, graphics.sizeX * .9, graphics.sizeY * .45, -2.5];
+        const cardinalControls = [graphics.sizeX * .1, graphics.sizeY * .2, graphics.sizeX * .2, graphics.sizeY * .5, graphics.sizeX * .8, graphics.sizeY * .5, graphics.sizeX * .9, graphics.sizeY * .45, -2];
         //[p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y]
         const bezierControls =       [graphics.sizeX * .1, graphics.sizeY / 2, graphics.sizeX * .3, graphics.sizeY * .3, graphics.sizeX * .7, graphics.sizeY * .9, graphics.sizeX * .9, graphics.sizeY * .5];
         //[p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y]
@@ -97,20 +98,22 @@ MySample.main = (function(graphics) {
         //graphics.drawCurve(graphics.Curve.BezierMatrix, bezierMatrixControls, 10, true, true, true, 'blue');
         //graphics.drawLine(x1, y1, x2, y2, 'red');
         
-        let prim1 = makePrim([x1, y1, x2, y2, x3, y3], [(x1 + x2) / 2, (y1 + y2) / 2]); //TODO, function for calculating center 
+        let prim1 = makePrim([x1, y1, x2, y2, x3, y3]); //TODO, function for calculating center 
 
-        graphics.drawPrimitive(prim1, true, 'red');
+        graphics.drawPoint(prim1.center, 'blue');
+
+        //graphics.drawPrimitive(prim1, true, 'red');
 
         let point = [100, 100];
-
-        graphics.drawPoint(point, 'red');
         let distance = [50, 0];
-        //console.log(distance);
-        point = graphics.translatePoint(point, distance);
+    
+        graphics.rotatePrimitive(prim1, 180);
+        //graphics.drawPrimitive(prim1, true, 'green');
+        //graphics.drawPoint(prim1.center, 'white');
 
-        graphics.drawPoint(point, 'green');
-        graphics.translatePrimitive(prim1, distance);
-        graphics.drawPrimitive(prim1, 'green');
+        graphics.drawCurve(graphics.Curve.Cardinal, cardinalControls, 20, true, true, true, 'green');
+        graphics.rotateCurve(graphics.Curve.Cardinal, cardinalControls, 90);
+        graphics.drawCurve(graphics.Curve.Cardinal, cardinalControls, 20, true, true, true, 'green');
     }
 
     //------------------------------------------------------------------

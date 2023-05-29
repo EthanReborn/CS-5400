@@ -373,6 +373,7 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
             startY = endY;
             u += inc;
         }
+        drawLine(startX, startY, pk1x, pk1y, lineColor);
     }
 
     function respectToU3() {
@@ -605,6 +606,10 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
         }
     }
 
+
+//let WORLD_ORIGIN = [canvas.width / 4, canvas.height / 4];
+let WORLD_ORIGIN = [0, 0];
+
     //------------------------------------------------------------------
     //
     // Renders a primitive of the form: {
@@ -673,7 +678,6 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
        
         primitive.center[0] += distance[0];
         primitive.center[1] += distance[1];
-        
     }
 
     //------------------------------------------------------------------
@@ -688,6 +692,27 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //------------------------------------------------------------------
     function scalePrimitive(primitive, scale) {
 
+        console.log('original        ' + primitive.verts);
+
+        let distance = [WORLD_ORIGIN[0] - primitive.center[0], WORLD_ORIGIN[1] - primitive.center[1]];
+        let distanceBack = [(WORLD_ORIGIN[0] - primitive.center[0]) * -1, (WORLD_ORIGIN[1] - primitive.center[1]) * -1];
+        translatePrimitive(primitive, distance);
+
+        console.log('translate 1     ' + primitive.verts);
+
+        for(let i = 0; i < primitive.verts.length; i++){
+            if(i % 2 == 0){
+                primitive.verts[i] *= scale[0];
+            }else{
+                primitive.verts[i] *= scale[1];
+            }
+        }
+
+        console.log('scale           ' + primitive.verts);
+
+        translatePrimitive(primitive, distanceBack);
+
+        console.log('translate back: ' + primitive.verts);
     }
 
     //------------------------------------------------------------------
@@ -701,7 +726,22 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function rotatePrimitive(primitive, angle) {
+        //convert degrees into radians
+        angle *= Math.PI / 180;
 
+        let distance = [WORLD_ORIGIN[0] - primitive.center[0], WORLD_ORIGIN[1] - primitive.center[1]];
+        let distanceBack = [(WORLD_ORIGIN[0] - primitive.center[0]) * -1, (WORLD_ORIGIN[1] - primitive.center[1]) * -1];
+
+        translatePrimitive(primitive, distance);
+
+        for(let i = 0; i < primitive.verts.length - 1; i += 2){
+            let newX = (primitive.verts[i] * Math.cos(angle)) - (primitive.verts[i+1] * Math.sin(angle));
+            let newY = (primitive.verts[i] * Math.sin(angle)) + (primitive.verts[i+1] * Math.cos(angle));
+            primitive.verts[i] = newX;
+            primitive.verts[i+1] = newY;
+        }
+
+        translatePrimitive(primitive, distanceBack);
     }
 
     //------------------------------------------------------------------
@@ -713,7 +753,29 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function translateCurve(type, controls, distance) {
+        let centerX = 0;
+        let centerY = 0;
+        //skips t value of cardinal controls in for loop
+        let offset = 0;
+        if(type == api.Curve.Cardinal){
+            centerX = (controls[2] + controls[4]) / 2 + distance[0];
+            centerY = (controls[3] + controls[5]) / 2 + distance[1];
+            offset = -1;
+        }else if(type == api.Curve.Bezier){
+            centerX = (controls[0] + controls[6]) / 2 + distance[0];
+            centerY = (controls[1] + controls[7]) / 2 + distance[1];
+        }else if(type == api.Curve.BezierMatrix){
+            centerX = (controls[0] + controls[6]) / 2 + distance[0];
+            centerY = (controls[1] + controls[7]) / 2 + distance[1];
+        }
 
+        for(let i = 0; i < controls.length + offset; i++){
+            if(i % 2 == 0){
+                controls[i] += distance[0];
+            }else{
+                controls[i] += distance[1];
+            }
+        }   
     }
 
     //------------------------------------------------------------------
@@ -725,7 +787,44 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function scaleCurve(type, controls, scale) {
+        let centerX = 0;
+        let centerY = 0;
+        //skips t value of cardinal controls in for loop
+        let offset = 0;
+        if(type == api.Curve.Cardinal){
+            centerX = (controls[2] + controls[4]) / 2;
+            centerY = (controls[3] + controls[5]) / 2;
+            offset = -1;
+        }else if(type == api.Curve.Bezier){
+            centerX = (controls[0] + controls[6]) / 2;
+            centerY = (controls[1] + controls[7]) / 2;
+        }else if(type == api.Curve.BezierMatrix){
+            centerX = (controls[0] + controls[6]) / 2;
+            centerY = (controls[1] + controls[7]) / 2;
+        }
 
+        let distance = [WORLD_ORIGIN[0] - centerX, WORLD_ORIGIN[1] - centerY];
+        let distanceBack = [(WORLD_ORIGIN[0] - centerX) * -1, (WORLD_ORIGIN[1] - centerY) * -1];
+
+        translateCurve(type, controls, distance);
+
+        console.log('translate 1     ' + controls);
+
+        for(let i = 0; i < controls.length + offset; i++){
+            if(i % 2 == 0){
+                controls[i] *= scale[0];
+            }else{
+                controls[i] *= scale[1];
+            }
+        }
+
+        api.drawPoint([centerX, centerY], 'yellow');
+
+        //console.log('scale           ' + controls);
+
+        translateCurve(type, controls, distanceBack);
+
+        console.log('translate back: ' + controls);
     }
 
     //------------------------------------------------------------------
@@ -737,7 +836,37 @@ MySample.graphics = (function(pixelsX, pixelsY, showPixels) {
     //
     //------------------------------------------------------------------
     function rotateCurve(type, controls, angle) {
+        //convert degrees into radians
+        angle *= Math.PI / 180;
 
+        let centerX = 0;
+        let centerY = 0;
+        let offset = 0;
+        if(type == api.Curve.Cardinal){
+            centerX = (controls[2] + controls[4]) / 2;
+            centerY = (controls[3] + controls[5]) / 2;
+            offset = -1;
+        }else if(type == api.Curve.Bezier){
+            centerX = (controls[0] + controls[6]) / 2;
+            centerY = (controls[1] + controls[7]) / 2;
+        }else if(type == api.Curve.BezierMatrix){
+            centerX = (controls[0] + controls[6]) / 2;
+            centerY = (controls[1] + controls[7]) / 2;
+        }
+
+        let distance = [WORLD_ORIGIN[0] - centerX, WORLD_ORIGIN[1] - centerY];
+        let distanceBack = [(WORLD_ORIGIN[0] - centerX) * -1, (WORLD_ORIGIN[1] - centerY) * -1];
+
+        translateCurve(type, controls, distance);
+
+        for(let i = 0; i < controls.length + offset; i += 2){
+            let newX = (controls[i] * Math.cos(angle)) - (controls[i+1] * Math.sin(angle));
+            let newY = (controls[i] * Math.sin(angle)) + (controls[i+1] * Math.cos(angle));
+            controls[i] = newX;
+            controls[i+1] = newY;
+        }
+
+        translateCurve(type, controls, distanceBack);
     }
 
     //
