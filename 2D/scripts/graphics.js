@@ -692,13 +692,13 @@ let WORLD_ORIGIN = [0, 0];
     //------------------------------------------------------------------
     function scalePrimitive(primitive, scale) {
 
-        console.log('original        ' + primitive.verts);
+        //console.log('original        ' + primitive.verts);
 
         let distance = [WORLD_ORIGIN[0] - primitive.center[0], WORLD_ORIGIN[1] - primitive.center[1]];
         let distanceBack = [(WORLD_ORIGIN[0] - primitive.center[0]) * -1, (WORLD_ORIGIN[1] - primitive.center[1]) * -1];
         translatePrimitive(primitive, distance);
 
-        console.log('translate 1     ' + primitive.verts);
+        //console.log('translate 1     ' + primitive.verts);
 
         for(let i = 0; i < primitive.verts.length; i++){
             if(i % 2 == 0){
@@ -708,11 +708,11 @@ let WORLD_ORIGIN = [0, 0];
             }
         }
 
-        console.log('scale           ' + primitive.verts);
+        //console.log('scale           ' + primitive.verts);
 
         translatePrimitive(primitive, distanceBack);
 
-        console.log('translate back: ' + primitive.verts);
+        //console.log('translate back: ' + primitive.verts);
     }
 
     //------------------------------------------------------------------
@@ -808,7 +808,7 @@ let WORLD_ORIGIN = [0, 0];
 
         translateCurve(type, controls, distance);
 
-        console.log('translate 1     ' + controls);
+        //console.log('translate 1     ' + controls);
 
         for(let i = 0; i < controls.length + offset; i++){
             if(i % 2 == 0){
@@ -824,7 +824,7 @@ let WORLD_ORIGIN = [0, 0];
 
         translateCurve(type, controls, distanceBack);
 
-        console.log('translate back: ' + controls);
+        //console.log('translate back: ' + controls);
     }
 
     //------------------------------------------------------------------
@@ -906,4 +906,4 @@ let WORLD_ORIGIN = [0, 0];
     });
 
     return api;
-}(500, 500, true));
+}(1000, 1000, true));
