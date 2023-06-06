@@ -1,5 +1,6 @@
 
 
+
 //------------------------------------------------------------------
 //
 // Helper function used to load a file from the server
@@ -70,3 +71,12 @@ function transposeMatrix4x4(m) {
     ];
     return t;
 }
+
+// const api = {
+//     loadFileFromServer: loadFileFromServer,
+//     transposeMatrix4x4: transposeMatrix4x4,
+// }
+
+
+// return api;
+
