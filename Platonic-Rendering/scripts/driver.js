@@ -82,47 +82,6 @@ MySample.main = (function() {
     let fragmentShader = null;
     let shaderProgram = null;
     
-    loadFileFromServer('shaders/vertex.vert')  
-        .then(source => {
-            console.log('step 1 done');
-            vertexShader = gl.createShader(gl.VERTEX_SHADER);
-            gl.shaderSource(vertexShader, source);
-            gl.compileShader(vertexShader);
-            console.log(gl.getShaderInfoLog(vertexShader)); // for debugging
-            return loadFileFromServer('shaders/fragment.frag');
-        })
-        .then(fragmentShaderSource => {
-            // handle the next shader/thing
-            console.log('step 2 done');
-            fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-            gl.shaderSource(fragmentShader, fragmentShaderSource);
-            gl.compileShader(fragmentShader);
-        })
-        .then(() => {
-            console.log('step 3 done');
-            shaderProgram = gl.createProgram();
-            gl.attachShader(shaderProgram, vertexShader);
-            gl.attachShader(shaderProgram, fragmentShader);
-            gl.linkProgram(shaderProgram);
-            gl.useProgram(shaderProgram); //set webgl state to use this shader program
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-            let position = gl.getAttribLocation(shaderProgram, 'aPosition');
-            gl.enableVertexAttribArray(position);
-            gl.vertexAttribPointer(position, 3, gl.FLOAT, false, vertices1.BYTES_PER_ELEMENT * 3, 0); 
-            gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
-            let color = gl.getAttribLocation(shaderProgram, 'aColor');
-            gl.enableVertexAttribArray(color);
-            gl.vertexAttribPointer(color, 3, gl.FLOAT, false, vertexColors1.BYTES_PER_ELEMENT * 3, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
-        })
-        .catch(error => {
-            console.log("something went wrong: ");
-            console.log(error);
-        });
-    
 //-------OCTAHEDRON--------
 
     let vertices2 = new Float32Array([
@@ -165,47 +124,6 @@ MySample.main = (function() {
     let vertexShader2 = null;
     let fragmentShader2 = null;
     let shaderProgram2 = null;
-     
-    loadFileFromServer('shaders/vertex.vert')  
-        .then(source => {
-            console.log('step 4 done');
-            vertexShader2 = gl.createShader(gl.VERTEX_SHADER);
-            gl.shaderSource(vertexShader2, source);
-            gl.compileShader(vertexShader2);
-            console.log(gl.getShaderInfoLog(vertexShader2)); // for debugging
-            return loadFileFromServer('shaders/fragment.frag');
-        })
-        .then(fragmentShaderSource => {
-            // handle the next shader/thing
-            console.log('step 5 done');
-            fragmentShader2 = gl.createShader(gl.FRAGMENT_SHADER);
-            gl.shaderSource(fragmentShader2, fragmentShaderSource);
-            gl.compileShader(fragmentShader2);
-        })
-        .then(() => {
-            console.log('step 6 done');
-            shaderProgram2 = gl.createProgram();
-            gl.attachShader(shaderProgram2, vertexShader2);
-            gl.attachShader(shaderProgram2, fragmentShader2);
-            gl.linkProgram(shaderProgram2);
-            gl.useProgram(shaderProgram2); //set webgl state to use this shader program
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
-            let position = gl.getAttribLocation(shaderProgram2, 'aPosition');
-            gl.enableVertexAttribArray(position);
-            gl.vertexAttribPointer(position, 3, gl.FLOAT, false, vertices2.BYTES_PER_ELEMENT * 3, 0); //vertices.BYTES = stride 
-            gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer2);
-            let color = gl.getAttribLocation(shaderProgram2, 'aColor');
-            gl.enableVertexAttribArray(color);
-            gl.vertexAttribPointer(color, 3, gl.FLOAT, false, vertexColors2.BYTES_PER_ELEMENT * 3, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
-        })
-        .catch(error => {
-            console.log("something went wrong: ");
-            console.log(error);
-        });
     
 //--------CUBE------------
 
@@ -256,6 +174,82 @@ MySample.main = (function() {
      
     loadFileFromServer('shaders/vertex.vert')  
         .then(source => {
+            console.log('step 1 done');
+            vertexShader = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(vertexShader, source);
+            gl.compileShader(vertexShader);
+            console.log(gl.getShaderInfoLog(vertexShader)); // for debugging
+            return loadFileFromServer('shaders/fragment.frag');
+        })
+        .then(fragmentShaderSource => {
+            // handle the next shader/thing
+            console.log('step 2 done');
+            fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fragmentShader, fragmentShaderSource);
+            gl.compileShader(fragmentShader);
+        })
+        .then(() => {
+            console.log('step 3 done');
+            shaderProgram = gl.createProgram();
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+            gl.useProgram(shaderProgram); //set webgl state to use this shader program
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+            let position = gl.getAttribLocation(shaderProgram, 'aPosition');
+            gl.enableVertexAttribArray(position);
+            gl.vertexAttribPointer(position, 3, gl.FLOAT, false, vertices1.BYTES_PER_ELEMENT * 3, 0); 
+            gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+            let color = gl.getAttribLocation(shaderProgram, 'aColor');
+            gl.enableVertexAttribArray(color);
+            gl.vertexAttribPointer(color, 3, gl.FLOAT, false, vertexColors1.BYTES_PER_ELEMENT * 3, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
+        })
+        .then(() => {
+            return loadFileFromServer('shaders/vertex.vert')  
+        })
+        .then(source => {
+            console.log('step 4 done');
+            vertexShader2 = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(vertexShader2, source);
+            gl.compileShader(vertexShader2);
+            console.log(gl.getShaderInfoLog(vertexShader2)); // for debugging
+            return loadFileFromServer('shaders/fragment.frag');
+        })
+        .then(fragmentShaderSource => {
+            // handle the next shader/thing
+            console.log('step 5 done');
+            fragmentShader2 = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fragmentShader2, fragmentShaderSource);
+            gl.compileShader(fragmentShader2);
+        })
+        .then(() => {
+            console.log('step 6 done');
+            shaderProgram2 = gl.createProgram();
+            gl.attachShader(shaderProgram2, vertexShader2);
+            gl.attachShader(shaderProgram2, fragmentShader2);
+            gl.linkProgram(shaderProgram2);
+            gl.useProgram(shaderProgram2); //set webgl state to use this shader program
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
+            let position = gl.getAttribLocation(shaderProgram2, 'aPosition');
+            gl.enableVertexAttribArray(position);
+            gl.vertexAttribPointer(position, 3, gl.FLOAT, false, vertices2.BYTES_PER_ELEMENT * 3, 0); //vertices.BYTES = stride 
+            gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer2);
+            let color = gl.getAttribLocation(shaderProgram2, 'aColor');
+            gl.enableVertexAttribArray(color);
+            gl.vertexAttribPointer(color, 3, gl.FLOAT, false, vertexColors2.BYTES_PER_ELEMENT * 3, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
+        })
+        .then(() => {
+            return loadFileFromServer('shaders/vertex.vert');  
+        })
+        .then(source => {
             console.log('step 7 done');
             vertexShader3 = gl.createShader(gl.VERTEX_SHADER);
             gl.shaderSource(vertexShader3, source);
@@ -291,7 +285,7 @@ MySample.main = (function() {
             gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
         })
         .then(() => {
-            requestAnimationFrame(animationLoop);
+           requestAnimationFrame(animationLoop);
         })
         .catch(error => {
             console.log("something went wrong: ");
@@ -311,20 +305,20 @@ MySample.main = (function() {
         // }
 
         const translateRight =    [
-            1, 0, 0, 2,
+            1, 0, 0, 5,
             0, 1, 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1
         ];
 
         const translateLeft =    [
-            1, 0, 0, -10,
+            1, 0, 0, -5,
             0, 1, 0, 0,
             0, 0, 1, 0,
             0, 0, 0, 1
         ];
 
-        let rotateYZ = [ //why does this have to be in update?
+        let rotateYZ = [
             1, 0, 0, 0,
             0, Math.cos(r), Math.sin(r), 0,
             0, -Math.sin(r), Math.cos(r), 0,
@@ -338,20 +332,20 @@ MySample.main = (function() {
             0, 0, 0, 1
         ]
 
-        const modelTetra = multiplyMatrix4x4(translateLeft, rotateXZ);
+        const modelTetra = multiplyMatrix4x4(translateRight, rotateXZ);
 
-        const modelOcta = translateLeft;
+        const modelOcta = multiplyMatrix4x4(translateLeft, rotateXZ);
 
         //const modelCube = multiplyMatrix4x4(rotateYZ, rotateXZ);
         const modelCube = multiplyMatrix4x4(rotateYZ, rotateXZ);
        
         //tetra
         gl.useProgram(shaderProgram);
+        //console.log(shaderProgram);
         let locationM = gl.getUniformLocation(shaderProgram, 'model');
         let locationV = gl.getUniformLocation(shaderProgram, 'view');
         let locationP = gl.getUniformLocation(shaderProgram, 'projection');
-        console.log(locationM);
-        gl.uniformMatrix4fv(locationM, false, transposeMatrix4x4(rotateXZ)); //set to different model
+        gl.uniformMatrix4fv(locationM, false, transposeMatrix4x4(modelTetra)); //set to different model
         gl.uniformMatrix4fv(locationV, false, transposeMatrix4x4(view));
         gl.uniformMatrix4fv(locationP, false, transposeMatrix4x4(perspectiveProj));
 
@@ -398,14 +392,18 @@ MySample.main = (function() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         //draw tetrahedron
+        gl.useProgram(shaderProgram);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
         gl.drawElements(gl.TRIANGLES, indices1.length, gl.UNSIGNED_SHORT, 0);
+        console.log(indices1.length);
 
-        //draw octohedron 
+        //draw octohedron
+        gl.useProgram(shaderProgram2); 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer2);
         gl.drawElements(gl.TRIANGLES, indices2.length, gl.UNSIGNED_SHORT, 0);   
 
         //draw cube
+        gl.useProgram(shaderProgram3);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer3);
         gl.drawElements(gl.TRIANGLES, indices3.length, gl.UNSIGNED_SHORT, 0);   
     }
