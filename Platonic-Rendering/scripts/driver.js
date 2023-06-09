@@ -14,27 +14,11 @@ MySample.main = (function() {
     const near =    2;
     const far =     10;
 
-    const camera = [0, 0, 5];
+    const camera = [0, 0, 4];
 
     let r = 0.01;
 
-    let rotateYZ = [
-        1, 0, 0, 0,
-        0, Math.cos(r), Math.sin(r), 0,
-        0, -Math.sin(r), Math.cos(r), 0,
-        0, 0, 0, 1,
-    ];
-
     let s = 0.01;
-
-    let rotateXZ = [
-        Math.cos(s), 0, Math.sin(s), 0,
-        0, 1, 0, 0,
-        -Math.sin(s), 0, Math.cos(s), 0,
-        0, 0, 0, 1
-    ]
-
-    const model = multiplyMatrix4x4(rotateXZ, rotateYZ);
 
     const view =    [
                         1, 0, 0, -camera[0],
@@ -59,15 +43,16 @@ MySample.main = (function() {
 
     //Step 3: prepare raw data
 
-    //tetrahedron
+//----------TETRAHEDRON---------
+
     let vertices1 = new Float32Array([
-        0.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        -1.0, 0.0, 0.0,
-        0.0, 0.5, 1.0,
+        0.0, 1.0, 0.0, //0
+        1.0, 0.0, 0.0, //1
+        -1.0, 0.0, 0.0, //2
+        0.0, -0.5, 1.0, //3
     ]);
 
-    let indices1 = new Uint16Array([ 3, 1, 0, 3, 0, 2, 3, 2, 1 ]);
+    let indices1 = new Uint16Array([ 3, 1, 0, 3, 0, 2, 3, 2, 1, 1, 2, 0 ]);
 
     let vertexColors1 = new Float32Array([
         1.0, 0.0, 0.0,
@@ -124,7 +109,7 @@ MySample.main = (function() {
             gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
             let position = gl.getAttribLocation(shaderProgram, 'aPosition');
             gl.enableVertexAttribArray(position);
-            gl.vertexAttribPointer(position, 3, gl.FLOAT, false, vertices1.BYTES_PER_ELEMENT * 3, 0); //vertices.BYTES = stride 
+            gl.vertexAttribPointer(position, 3, gl.FLOAT, false, vertices1.BYTES_PER_ELEMENT * 3, 0); 
             gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
 
             gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
@@ -132,7 +117,6 @@ MySample.main = (function() {
             gl.enableVertexAttribArray(color);
             gl.vertexAttribPointer(color, 3, gl.FLOAT, false, vertexColors1.BYTES_PER_ELEMENT * 3, 0);
             gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
-
         })
         .catch(error => {
             console.log("something went wrong: ");
@@ -217,7 +201,6 @@ MySample.main = (function() {
             gl.enableVertexAttribArray(color);
             gl.vertexAttribPointer(color, 3, gl.FLOAT, false, vertexColors2.BYTES_PER_ELEMENT * 3, 0);
             gl.bindBuffer(gl.ARRAY_BUFFER, null); //unbind?
-
         })
         .catch(error => {
             console.log("something went wrong: ");
@@ -327,6 +310,20 @@ MySample.main = (function() {
         //     return;
         // }
 
+        const translateRight =    [
+            1, 0, 0, 2,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ];
+
+        const translateLeft =    [
+            1, 0, 0, -10,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ];
+
         let rotateYZ = [ //why does this have to be in update?
             1, 0, 0, 0,
             0, Math.cos(r), Math.sin(r), 0,
@@ -341,28 +338,40 @@ MySample.main = (function() {
             0, 0, 0, 1
         ]
 
-        const model = multiplyMatrix4x4(rotateYZ, rotateXZ);
+        const modelTetra = multiplyMatrix4x4(translateLeft, rotateXZ);
+
+        const modelOcta = translateLeft;
+
+        //const modelCube = multiplyMatrix4x4(rotateYZ, rotateXZ);
+        const modelCube = multiplyMatrix4x4(rotateYZ, rotateXZ);
        
-        // let locationM = gl.getUniformLocation(shaderProgram, 'model');
-        // let locationV = gl.getUniformLocation(shaderProgram, 'view');
-        // let locationP = gl.getUniformLocation(shaderProgram, 'projection');
-        // gl.uniformMatrix4fv(locationM, false, transposeMatrix4x4(rotateYZ)); //set to different model
-        // gl.uniformMatrix4fv(locationV, false, transposeMatrix4x4(view));
-        // gl.uniformMatrix4fv(locationP, false, transposeMatrix4x4(parallelProj));
+        //tetra
+        gl.useProgram(shaderProgram);
+        let locationM = gl.getUniformLocation(shaderProgram, 'model');
+        let locationV = gl.getUniformLocation(shaderProgram, 'view');
+        let locationP = gl.getUniformLocation(shaderProgram, 'projection');
+        console.log(locationM);
+        gl.uniformMatrix4fv(locationM, false, transposeMatrix4x4(rotateXZ)); //set to different model
+        gl.uniformMatrix4fv(locationV, false, transposeMatrix4x4(view));
+        gl.uniformMatrix4fv(locationP, false, transposeMatrix4x4(perspectiveProj));
 
-        // let locationM2 = gl.getUniformLocation(shaderProgram2, 'model');
-        // let locationV2 = gl.getUniformLocation(shaderProgram2, 'view');
-        // let locationP2 = gl.getUniformLocation(shaderProgram2, 'projection');
-        // gl.uniformMatrix4fv(locationM2, false, transposeMatrix4x4(rotateYZ));
-        // gl.uniformMatrix4fv(locationV2, false, transposeMatrix4x4(view));
-        // gl.uniformMatrix4fv(locationP2, false, transposeMatrix4x4(parallelProj));
+        //octa
+        gl.useProgram(shaderProgram2);
+        let locationM2 = gl.getUniformLocation(shaderProgram2, 'model');
+        let locationV2 = gl.getUniformLocation(shaderProgram2, 'view');
+        let locationP2 = gl.getUniformLocation(shaderProgram2, 'projection');
+        gl.uniformMatrix4fv(locationM2, false, transposeMatrix4x4(modelOcta));
+        gl.uniformMatrix4fv(locationV2, false, transposeMatrix4x4(view));
+        gl.uniformMatrix4fv(locationP2, false, transposeMatrix4x4(perspectiveProj));
 
+        //cube
+        gl.useProgram(shaderProgram3);
         let locationM3 = gl.getUniformLocation(shaderProgram3, 'model');
         let locationV3 = gl.getUniformLocation(shaderProgram3, 'view');
         let locationP3 = gl.getUniformLocation(shaderProgram3, 'projection');
-        gl.uniformMatrix4fv(locationM3, false, transposeMatrix4x4(model));
+        gl.uniformMatrix4fv(locationM3, false, transposeMatrix4x4(modelCube));
         gl.uniformMatrix4fv(locationV3, false, transposeMatrix4x4(view));
-        gl.uniformMatrix4fv(locationP3, false, transposeMatrix4x4(parallelProj));
+        gl.uniformMatrix4fv(locationP3, false, transposeMatrix4x4(perspectiveProj));
 
         r += 0.01;
         s += 0.01;
@@ -389,12 +398,12 @@ MySample.main = (function() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         //draw tetrahedron
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        // gl.drawElements(gl.TRIANGLES, indices1.length, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.drawElements(gl.TRIANGLES, indices1.length, gl.UNSIGNED_SHORT, 0);
 
         //draw octohedron 
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer2);
-        // gl.drawElements(gl.TRIANGLES, indices2.length, gl.UNSIGNED_SHORT, 0);   
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer2);
+        gl.drawElements(gl.TRIANGLES, indices2.length, gl.UNSIGNED_SHORT, 0);   
 
         //draw cube
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer3);
