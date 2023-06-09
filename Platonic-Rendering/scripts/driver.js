@@ -2,6 +2,9 @@
 MySample.main = (function() {
     'use strict';
 
+    var previousTime = Date.now();
+    let time = Date.now();
+
     let canvas = document.getElementById('canvas-main');
     let gl = canvas.getContext('webgl2');
     gl.enable(gl.CULL_FACE);
@@ -14,18 +17,28 @@ MySample.main = (function() {
     const near =    2;
     const far =     10;
 
-    const camera = [0, 0, 4];
+    const camera = [0, 0, 10];
+
+    const camera2 = [0, 0, 15];
 
     let r = 0.01;
 
     let s = 0.01;
 
-    const view =    [
+    let view =    [
                         1, 0, 0, -camera[0],
                         0, 1, 0, -camera[1],
                         0, 0, 1, -camera[2],
                         0, 0, 0, 1
                     ];
+
+    
+    let view2 =    [
+        1, 0, 0, -camera2[0],
+        0, 1, 0, -camera2[1],
+        0, 0, 1, -camera2[2],
+        0, 0, 0, 1
+    ];
 //---
     const parallelProj =   [
                                 2 / (right - left), 0, 0, -(left + right) / (right - left), 
@@ -52,7 +65,7 @@ MySample.main = (function() {
         0.0, -0.5, 1.0, //3
     ]);
 
-    let indices1 = new Uint16Array([ 3, 1, 0, 3, 0, 2, 3, 2, 1, 1, 2, 0 ]);
+    let indices1 = new Uint16Array([ 11, 9, 8, 11, 8, 10, 11, 10, 9, 9, 10, 8 ]);
 
     let vertexColors1 = new Float32Array([
         1.0, 0.0, 0.0,
@@ -93,7 +106,7 @@ MySample.main = (function() {
         0.0, -1.0, 0.0, //bottom 5
     ]);
 
-    let indices2 = new Uint16Array([ 0, 4, 3,  0, 4, 1,  2, 3, 4,  2, 1, 4,  0, 3, 5,  0, 5, 1,  5, 2, 3,  5, 1, 2 ]);
+    let indices2 = new Uint16Array([ 12, 16, 15,  12, 13, 16,  14, 15, 16,  14, 16, 13,  12, 15, 17,  12, 17, 13,  17, 15, 14, 17, 14, 13 ]);
 
     let vertexColors2 = new Float32Array([
         0.0, 0.0, 1.0, //front 0
@@ -135,7 +148,19 @@ MySample.main = (function() {
         -1.0, 1.0, -1.0, //back upper left 4
         1.0, 1.0, -1.0, //back upper right 5
         -1.0, -1.0, -1.0, //back lower left 6
-        1.0, -1.0, -1.0   //back lower right 7
+        1.0, -1.0, -1.0,   //back lower right 7
+        //tetra
+        0.0, 2.0, 0.0, //0
+        1.0, 0.0, 0.0, //1
+        -2.0, 0.0, 0.0, //2
+        0.0, -0.5, -2.0, //3
+        //octa
+        0.0, 0.0, 2.0, //front 0
+        2.0, 0.0, 0.0, //right 1
+        0.0, 0.0, -2.0, //back 2
+        -2.0, 0.0, 0.0, //left 3
+        0.0, 2.0, 0.0, //top   4
+        0.0, -2.0, 0.0, //bottom 5
     ]);
 
     let indices3 = new Uint16Array([ 2, 3, 1,  2, 1, 0,  6, 2, 0,  6, 0, 4,  3, 7, 1,  1, 7, 5,  7, 6, 4,  7, 4, 5,  4, 0, 1,  4, 1, 5,  6, 7, 2,  2, 7, 3 ]);
@@ -148,7 +173,20 @@ MySample.main = (function() {
         1.0, 0.0, 0.0, //back upper left 4
         0.0, 1.0, 0.0, //back upper right 5
         0.0, 0.0, 1.0, //back lower left 6
-        1.0, 1.0, 0.0  //back lower right 7
+        1.0, 1.0, 0.0,  //back lower right 7
+
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 0.0, 1.0,
+        1.0, 1.0, 0.0,
+
+        0.0, 0.0, 1.0, //front 0
+        1.0, 0.0, 0.0, //right 1
+        0.0, 0.0, 1.0, //back 2
+        1.0, 0.0, 0.0, //left 3
+        0.0, 1.0, 0.0, //top   4
+        0.0, 1.0, 0.0, //bottom 5
+
     ]);
 
     //create buffers 
@@ -298,25 +336,39 @@ MySample.main = (function() {
     //
     //------------------------------------------------------------------
  
-    function update() {
+    function update(time) {
         // webGl uniform parameters
         // if(shaderProgram == null || shaderProgram == undefined){
         //     return;
         // }
 
-        const translateRight =    [
-            1, 0, 0, 5,
+        const translateParallel =    [
+            1, 0, 0, 0,
             0, 1, 0, 0,
-            0, 0, 1, 0,
+            0, 0, 1, 2.5,
+            0, 0, 0, 1
+        ];
+
+        const translateRight =    [
+            1, 0, 0, 7,
+            0, 1, 0, 0,
+            0, 0, 1, 3.5,
             0, 0, 0, 1
         ];
 
         const translateLeft =    [
-            1, 0, 0, -5,
+            1, 0, 0, -7,
             0, 1, 0, 0,
-            0, 0, 1, 0,
+            0, 0, 1, 3.5,
             0, 0, 0, 1
         ];
+
+        const translateForward = [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 3.5,
+            0, 0, 0, 1,
+        ]
 
         let rotateYZ = [
             1, 0, 0, 0,
@@ -332,12 +384,17 @@ MySample.main = (function() {
             0, 0, 0, 1
         ]
 
-        const modelTetra = multiplyMatrix4x4(translateRight, rotateXZ);
+        let tempT = multiplyMatrix4x4(translateRight, rotateXZ);
+        const modelTetra = multiplyMatrix4x4(tempT, rotateYZ);
+        const modelTetraParallel = multiplyMatrix4x4(translateParallel, rotateXZ);
 
-        const modelOcta = multiplyMatrix4x4(translateLeft, rotateXZ);
+        let tempO = multiplyMatrix4x4(translateLeft, rotateXZ);
+        const modelOcta = multiplyMatrix4x4(tempO, rotateYZ);
+        const modelOctaParallel = multiplyMatrix4x4(translateParallel, rotateXZ);
 
-        //const modelCube = multiplyMatrix4x4(rotateYZ, rotateXZ);
-        const modelCube = multiplyMatrix4x4(rotateYZ, rotateXZ);
+        let tempC = multiplyMatrix4x4(translateForward, rotateXZ);
+        const modelCube = multiplyMatrix4x4(tempC, rotateYZ);
+        const modelCubeParallel = multiplyMatrix4x4(translateParallel, rotateXZ);
        
         //tetra
         gl.useProgram(shaderProgram);
@@ -345,27 +402,42 @@ MySample.main = (function() {
         let locationM = gl.getUniformLocation(shaderProgram, 'model');
         let locationV = gl.getUniformLocation(shaderProgram, 'view');
         let locationP = gl.getUniformLocation(shaderProgram, 'projection');
-        gl.uniformMatrix4fv(locationM, false, transposeMatrix4x4(modelTetra)); //set to different model
         gl.uniformMatrix4fv(locationV, false, transposeMatrix4x4(view));
-        gl.uniformMatrix4fv(locationP, false, transposeMatrix4x4(perspectiveProj));
-
+        if(time < 9_000 || time > 19_000){
+            gl.uniformMatrix4fv(locationM, false, transposeMatrix4x4(modelTetra)); 
+            gl.uniformMatrix4fv(locationP, false, transposeMatrix4x4(perspectiveProj));
+        }else{
+            gl.uniformMatrix4fv(locationM, false, transposeMatrix4x4(modelTetraParallel)); 
+            gl.uniformMatrix4fv(locationP, false, transposeMatrix4x4(parallelProj));
+        }
+        
         //octa
         gl.useProgram(shaderProgram2);
         let locationM2 = gl.getUniformLocation(shaderProgram2, 'model');
         let locationV2 = gl.getUniformLocation(shaderProgram2, 'view');
         let locationP2 = gl.getUniformLocation(shaderProgram2, 'projection');
-        gl.uniformMatrix4fv(locationM2, false, transposeMatrix4x4(modelOcta));
         gl.uniformMatrix4fv(locationV2, false, transposeMatrix4x4(view));
-        gl.uniformMatrix4fv(locationP2, false, transposeMatrix4x4(perspectiveProj));
+        if(time < 19_000 || time > 28_000){
+            gl.uniformMatrix4fv(locationM2, false, transposeMatrix4x4(modelOcta)); 
+            gl.uniformMatrix4fv(locationP2, false, transposeMatrix4x4(perspectiveProj));
+        }else{
+            gl.uniformMatrix4fv(locationM2, false, transposeMatrix4x4(modelOctaParallel)); 
+            gl.uniformMatrix4fv(locationP2, false, transposeMatrix4x4(parallelProj));
+        }
 
         //cube
         gl.useProgram(shaderProgram3);
         let locationM3 = gl.getUniformLocation(shaderProgram3, 'model');
         let locationV3 = gl.getUniformLocation(shaderProgram3, 'view');
         let locationP3 = gl.getUniformLocation(shaderProgram3, 'projection');
-        gl.uniformMatrix4fv(locationM3, false, transposeMatrix4x4(modelCube));
         gl.uniformMatrix4fv(locationV3, false, transposeMatrix4x4(view));
-        gl.uniformMatrix4fv(locationP3, false, transposeMatrix4x4(perspectiveProj));
+        if(time < 28_000 || time > 37_000){
+            gl.uniformMatrix4fv(locationM3, false, transposeMatrix4x4(modelCube)); 
+            gl.uniformMatrix4fv(locationP3, false, transposeMatrix4x4(perspectiveProj));
+        }else{
+            gl.uniformMatrix4fv(locationM3, false, transposeMatrix4x4(modelCubeParallel)); 
+            gl.uniformMatrix4fv(locationP3, false, transposeMatrix4x4(parallelProj));
+        }
 
         r += 0.01;
         s += 0.01;
@@ -415,7 +487,11 @@ MySample.main = (function() {
     //------------------------------------------------------------------
     function animationLoop(time) {
 
-        update();
+        console.log(time);
+        let elapsedTime = time - previousTime;
+        //previousTime = time;
+        update(time);
+   
         render();
 
         requestAnimationFrame(animationLoop);
